@@ -30,13 +30,21 @@ public class NoiseMapGenerator : MonoBehaviour
         private float[,] heatMap;*/
     private bool isColorEnabled = false;
 
+    Wave[] testWaves = {
+            new Wave(10, 0.03f, 0.05f),
+            new Wave(12, 0.03f, 0.06f),
+            new Wave(7, 0.04f, 0.07f),
+            new Wave(22, 0.03f, 0.08f),
+            new Wave(32, 0.05f, 0.11f),
+        };
+
     private void Start()
     {
         // stworzenie tile do wype³niania tileMapy
         tile = ScriptableObject.CreateInstance<Tile>();
         tile.sprite = sprite;
         // wyœrodkowanie tilemapy na ekranie
-        tilemap.transform.position = new Vector3(-width / 2, -height / 2, 0);
+        //tilemap.transform.position = new Vector3(-width / 2, -height / 2, 0);
 
         // generacja noiseMapy na tileMapie
         GenerateMap();
@@ -73,7 +81,7 @@ public class NoiseMapGenerator : MonoBehaviour
         tilemap.ClearAllTiles();
         // height map
         // generacja noiseMap 
-        heightMap = Generate(width, height, scale, heightWaves, offset);
+        heightMap = Generate(width, height, scale, testWaves, offset);
         // moisture map
         //moistureMap = Generate(width, height, scale, moistureWaves, offset);
         // heat map
@@ -115,4 +123,10 @@ public class Wave
     public float frequency;
     [Range(0.01f, 1.0f)]
     public float amplitude;
+    public Wave(int seed, float frequency, float amplitude)
+    {
+        this.seed = seed;
+        this.frequency = frequency;
+        this.amplitude = amplitude;
+    }
 }
