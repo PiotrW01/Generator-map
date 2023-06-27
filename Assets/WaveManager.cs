@@ -4,7 +4,7 @@ using UnityEditor.UI;
 using UnityEngine;
 
 
-public enum WaveType
+public enum NoiseMap
 {
     Continentality,
     Height,

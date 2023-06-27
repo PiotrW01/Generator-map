@@ -7,17 +7,18 @@ public class UIHandler : MonoBehaviour
     public TMP_InputField seed;
     public Slider renderDistanceSlider;
     public TextMeshProUGUI renderDistanceText;
+    public TMP_Dropdown dropDown;
 
     public Slider freqSlider;
     public Slider ampSlider;
     public TextMeshProUGUI freqText;
     public TextMeshProUGUI ampText;
-    public TextMeshProUGUI currentWaveText;
-    private int currentWave = 0;
+    //public TextMeshProUGUI currentWaveText;
+    //private int currentWave = 0;
 
     private void Start()
     {
-        currentWaveText.text = "Aktualnie wybrana fala: 0";
+        //currentWaveText.text = "Aktualnie wybrana fala: 0";
         seed.text = ChunkLoader.Instance.seed.ToString();
         renderDistanceText.text = ChunkLoader.renderDistance.ToString();
         renderDistanceSlider.value = ChunkLoader.renderDistance;
@@ -49,6 +50,25 @@ public class UIHandler : MonoBehaviour
                 seed.text = int.MaxValue.ToString();
             }
         });
+    }
+
+    public void ChangeDisplayedNoiseMap()
+    {
+        switch (dropDown.value)
+        {
+            case 0:
+                ChunkLoader.Instance.selectedNoiseMap = NoiseMap.Continentality;
+                break;
+            case 1:
+                ChunkLoader.Instance.selectedNoiseMap = NoiseMap.Height;
+                break;
+            case 2:
+                ChunkLoader.Instance.selectedNoiseMap = NoiseMap.Temperature;
+                break;
+            case 3:
+                ChunkLoader.Instance.selectedNoiseMap = NoiseMap.Humidity;
+                break;
+        }
     }
 
     public void DisplayNoise()

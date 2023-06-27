@@ -13,8 +13,7 @@ public class ChunkLoader : MonoBehaviour
 
     public Tilemap tilemap;
     public bool showNoise = false;
-    public bool chunkBorders = true;
-    public WaveType WaveNoise = WaveType.Continentality;
+    public NoiseMap selectedNoiseMap = NoiseMap.Continentality;
     public float tileHNoiseValue;
     public float tileCNoiseValue;
     public float tileTNoiseValue;
@@ -24,7 +23,7 @@ public class ChunkLoader : MonoBehaviour
     public static int renderDistance = 3;
     public Vector2Int currentChunk;
     public Vector3Int currentGridPos;
-    private List<Vector2Int> loadedChunks;
+    public List<Vector2Int> loadedChunks;
 
     private void Awake()
     {
@@ -37,7 +36,6 @@ public class ChunkLoader : MonoBehaviour
             Instance = this;
         }
     }
-
     private void Start()
     {
         seed = 222;
@@ -54,7 +52,6 @@ public class ChunkLoader : MonoBehaviour
         tileCNoiseValue = 1f;
         tileTNoiseValue = 1f;
     }
-
     private void Update()
     {
         currentGridPos = tilemap.WorldToCell(Camera.main.transform.position);
@@ -75,8 +72,6 @@ public class ChunkLoader : MonoBehaviour
             UnloadChunks(currentChunk);
             StartCoroutine(RenderChunks2(currentChunk));
         }
-
-        if (chunkBorders) DrawChunkBorders();
     }
     public IEnumerator RenderChunks2(Vector2Int centerChunkPos)
     {
@@ -88,7 +83,7 @@ public class ChunkLoader : MonoBehaviour
                 if (!RenderChunk(new Vector2Int(centerChunkPos.x - renderDistance + j, centerChunkPos.y - renderDistance + i))) continue;
                 // Stops coroutine if rendering is happening more than 3 chunks behind main camera
                 if (Mathf.Abs(centerChunkPos.x - currentChunk.x) > 3 || Mathf.Abs(centerChunkPos.y - currentChunk.y) > 3) yield break;
-                yield return new WaitForSeconds(0.02f * renderDistance);
+                yield return new WaitForSeconds(0.015f * renderDistance);
             }
         }
     }
@@ -168,7 +163,7 @@ public class ChunkLoader : MonoBehaviour
 
                 if (showNoise)
                 {
-                    ct.EnableDebug(WaveNoise);
+                    ct.EnableDebug(selectedNoiseMap);
                 }
                 else
                 {
@@ -221,21 +216,6 @@ public class ChunkLoader : MonoBehaviour
         loadedChunks.Clear();
         StartCoroutine(RenderChunks2(currentChunk));
     }
-
-    public void DrawChunkBorders()
-    {
-        var gap = (chunkSize - 1);
-        foreach (var chunk in loadedChunks)
-        {
-            var startPos = tilemap.CellToWorld((Vector3Int)ChunkToGridCoords(chunk.x, chunk.y));
-            var endPos = tilemap.CellToWorld((Vector3Int)ChunkToGridCoords(chunk.x, chunk.y) + new Vector3Int(gap, gap));
-            Debug.DrawLine(new Vector3(startPos.x, startPos.y), new Vector3(endPos.x, startPos.y), Color.red);
-            Debug.DrawLine(new Vector3(startPos.x, startPos.y), new Vector3(startPos.x, endPos.y), Color.red);
-            Debug.DrawLine(new Vector3(startPos.x, endPos.y), new Vector3(endPos.x, endPos.y), Color.red);
-            Debug.DrawLine(new Vector3(endPos.x, startPos.y), new Vector3(endPos.x, endPos.y), Color.red);
-        }
-    }
-
     /// <summary>
     /// Returns the chunk coordinates of the chunk in which the (x,y) point is present.
     /// </summary>

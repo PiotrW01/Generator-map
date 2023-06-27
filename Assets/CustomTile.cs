@@ -26,20 +26,20 @@ public class CustomTile : Tile
         sprite = TerrainSprites.GetSprite(terrainType);
     }
     
-    public void EnableDebug(WaveType wave)
+    public void EnableDebug(NoiseMap wave)
     {
         switch (wave)
         {
-            case WaveType.Height:
+            case NoiseMap.Height:
                 color = new Color(heightValue, heightValue, heightValue);
                 break;
-            case WaveType.Temperature:
+            case NoiseMap.Temperature:
                 color = new Color(temperatureValue, temperatureValue, temperatureValue);
                 break;
-            case WaveType.Continentality:
+            case NoiseMap.Continentality:
                 color = new Color(continentalityValue, continentalityValue, continentalityValue);
                 break;
-            case WaveType.Humidity:
+            case NoiseMap.Humidity:
                 color = new Color(humidityValue, humidityValue, humidityValue);
                 break;
             default:
