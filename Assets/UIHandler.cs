@@ -8,6 +8,7 @@ public class UIHandler : MonoBehaviour
     public Slider renderDistanceSlider;
     public TextMeshProUGUI renderDistanceText;
     public TMP_Dropdown dropDown;
+    public TMP_Dropdown resDropDown;
 
     public Slider freqSlider;
     public Slider ampSlider;
@@ -69,6 +70,16 @@ public class UIHandler : MonoBehaviour
                 ChunkLoader.Instance.selectedNoiseMap = NoiseMap.Humidity;
                 break;
         }
+    }
+
+    public void ChangeResolution()
+    {
+        ResolutionManager.Instance.SetResolution(resDropDown.value);
+    }
+
+    public void ToggleFullscreen()
+    {
+        ResolutionManager.Instance.ToggleFullscreen();
     }
 
     public void DisplayNoise()
