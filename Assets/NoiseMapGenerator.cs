@@ -115,18 +115,3 @@ public class NoiseMapGenerator : MonoBehaviour
 
 }
 
-[System.Serializable]
-public class Wave
-{
-    public int seed;
-    [Range(0.02f, 0.5f)]
-    public float frequency;
-    [Range(0.01f, 1.0f)]
-    public float amplitude;
-    public Wave(int seed, float frequency, float amplitude)
-    {
-        this.seed = seed;
-        this.frequency = frequency;
-        this.amplitude = amplitude;
-    }
-}

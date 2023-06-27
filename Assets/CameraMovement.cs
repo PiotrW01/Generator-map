@@ -3,6 +3,14 @@ using UnityEngine;
 public class CameraMovement : MonoBehaviour
 {
     private float baseSpeed = 2f;
+    private int maxZoom = 160;
+    private int minZoom = 5;
+
+
+    private void Start()
+    {
+        Camera.main.orthographicSize = 20;
+    }
 
     private void Update()
     {
@@ -29,15 +37,18 @@ public class CameraMovement : MonoBehaviour
                                     Camera.main.transform.position + new Vector3(0, 1, 0), speed * Time.deltaTime);
         }
 
-        if(Input.mouseScrollDelta.y > 0 && Camera.main.orthographicSize > 5)
+        if(Input.mouseScrollDelta.y > 0 && Camera.main.orthographicSize > minZoom)
         {
-            if((Camera.main.orthographicSize /= 1.1f) < 5f)
+            if((Camera.main.orthographicSize /= 1.1f) < minZoom)
             {
-                Camera.main.orthographicSize = 5;
+                Camera.main.orthographicSize = minZoom;
             }
-        } else if(Input.mouseScrollDelta.y < 0 && Camera.main.orthographicSize < 100)
+        } else if(Input.mouseScrollDelta.y < 0 && Camera.main.orthographicSize < maxZoom)
         {
-            Camera.main.orthographicSize *= 1.1f;
+            if ((Camera.main.orthographicSize *= 1.1f) > maxZoom)
+            {
+                Camera.main.orthographicSize = maxZoom;
+            }
         }
 
 

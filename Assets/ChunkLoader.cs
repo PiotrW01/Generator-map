@@ -1,14 +1,24 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO.IsolatedStorage;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class ChunkLoader : MonoBehaviour
 {
+    public static ChunkLoader Instance { get; private set; }
+    public float scale = 4.0f;
+    public int seed = 222;
+
     public Tilemap tilemap;
-    public Sprite sprite;
-    private Tile tile;
+    public bool showNoise = false;
+    public bool chunkBorders = true;
+    public WaveType WaveNoise = WaveType.Continentality;
+    public float tileHNoiseValue;
+    public float tileCNoiseValue;
+    public float tileTNoiseValue;
+    public Terrain tileTerrainType;
 
     public static int chunkSize = 16;
     public static int renderDistance = 3;
@@ -16,26 +26,48 @@ public class ChunkLoader : MonoBehaviour
     public Vector3Int currentGridPos;
     private List<Vector2Int> loadedChunks;
 
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
+
     private void Start()
     {
-        tile = ScriptableObject.CreateInstance<Tile>();
-        tile.sprite = sprite;
+        seed = 222;
+        //tile = ScriptableObject.CreateInstance<CustomTile>();
+
         loadedChunks = new List<Vector2Int>(((renderDistance * 2) + 1 + 2) * 2);
-        
         // Current position on grid
-        var gridPos = tilemap.WorldToCell(transform.position);
+        var gridPos = tilemap.WorldToCell(Camera.main.transform.position);
         // Current chunk
         currentChunk = GridToChunkCoords(gridPos.x, gridPos.y);
         RenderChunks(currentChunk);
+
+        tileHNoiseValue = 1f;
+        tileCNoiseValue = 1f;
+        tileTNoiseValue = 1f;
     }
 
     private void Update()
     {
-        var gridPos = tilemap.WorldToCell(transform.position);
-        currentGridPos = gridPos;
-        var newChunk = GridToChunkCoords(gridPos.x, gridPos.y);
+        currentGridPos = tilemap.WorldToCell(Camera.main.transform.position);
 
-
+        var currentTile = tilemap.GetTile<CustomTile>(currentGridPos);
+        try {
+        tileHNoiseValue = currentTile.heightValue;
+        tileCNoiseValue = currentTile.continentalityValue;
+        tileTNoiseValue = currentTile.temperatureValue;
+        tileTerrainType = currentTile.terrainType;
+        } catch { }
+        
+        var newChunk = GridToChunkCoords(currentGridPos.x, currentGridPos.y);
         if (currentChunk != newChunk)
         {
             currentChunk = newChunk;
@@ -43,8 +75,9 @@ public class ChunkLoader : MonoBehaviour
             UnloadChunks(currentChunk);
             StartCoroutine(RenderChunks2(currentChunk));
         }
-    }
 
+        if (chunkBorders) DrawChunkBorders();
+    }
     public IEnumerator RenderChunks2(Vector2Int centerChunkPos)
     {
         for (int i = 0; i < renderDistance * 2 + 1; i++)
@@ -55,11 +88,10 @@ public class ChunkLoader : MonoBehaviour
                 if (!RenderChunk(new Vector2Int(centerChunkPos.x - renderDistance + j, centerChunkPos.y - renderDistance + i))) continue;
                 // Stops coroutine if rendering is happening more than 3 chunks behind main camera
                 if (Mathf.Abs(centerChunkPos.x - currentChunk.x) > 3 || Mathf.Abs(centerChunkPos.y - currentChunk.y) > 3) yield break;
-                yield return new WaitForSeconds(0.03f);
+                yield return new WaitForSeconds(0.02f * renderDistance);
             }
         }
     }
-
     public void RenderChunks(Vector2Int centerChunkPos)
     {
         // Goes through all chunks around the current chunk and renders them
@@ -71,21 +103,6 @@ public class ChunkLoader : MonoBehaviour
             }
         }
     }
-
-/*    public IEnumerator UnloadChunks2(Vector2Int centerChunkPos)
-    {
-        for (int i = loadedChunks.Count - 1; i >= 0; i--)
-        {
-            if (Mathf.Abs(centerChunkPos.x - loadedChunks[i].x) > renderDistance || Mathf.Abs(centerChunkPos.y - loadedChunks[i].y) > renderDistance)
-            {
-                UnloadChunk(loadedChunks[i]);
-                loadedChunks.RemoveAt(i);
-                yield return new WaitForSeconds(0.1f);
-            }
-        }
-    }*/
-
-
     public void UnloadChunks(Vector2Int centerChunkPos)
     {
         for (int i = loadedChunks.Count - 1; i >= 0; i--)
@@ -100,7 +117,6 @@ public class ChunkLoader : MonoBehaviour
             }
         }
     }
-
     public bool UnloadChunk(Vector2Int chunkPos)
     {
         var gridPos = ChunkToGridCoords(chunkPos.x, chunkPos.y);
@@ -120,7 +136,6 @@ public class ChunkLoader : MonoBehaviour
         }
 
     }
-
     public bool RenderChunk(Vector2Int chunkPos)
     {
         var gridPos = ChunkToGridCoords(chunkPos.x, chunkPos.y);
@@ -129,45 +144,97 @@ public class ChunkLoader : MonoBehaviour
             return false;
         }
 
-        // TODO: Generate noise maps
-
-        Wave[] temperatureWaves = { 
-            new Wave(10, 0.03f, 0.05f),
-            new Wave(12, 0.03f, 0.06f),
-            new Wave(7, 0.04f, 0.07f),
-            new Wave(22, 0.03f, 0.08f),
-            new Wave(32, 0.05f, 0.11f),
-        };
-        Wave[] humidityWaves = {
-            new Wave(4, 0.03f, 0.08f),
-            new Wave(22, 0.03f, 0.16f),
-            new Wave(37, 0.04f, 0.07f),
-            new Wave(72, 0.03f, 0.08f),
-            new Wave(11, 0.02f, 0.11f),
-        };
+        float[,] continentalityMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.continentalityWaves, new Vector2(gridPos.x, gridPos.y), seed);
+        float[,] heightMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.heightWaves, new Vector2(gridPos.x, gridPos.y), seed);
+        float[,] temperatureMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.temperatureWaves, new Vector2(gridPos.x, gridPos.y), seed);
+        float[,] humidityMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.humidityWaves, new Vector2(gridPos.x, gridPos.y), seed);
 
 
-        float[,] temperatureMap = NoiseGenerator.GenerateNoiseMap(chunkSize, 1f, temperatureWaves, new Vector2(gridPos.x, gridPos.y));
-        //float[,] humidityMap = NoiseGenerator.GenerateNoiseMap(chunkSize, 0.6f, humidityWaves, new Vector2(gridPos.x, gridPos.y));
-
-
-        for (int x = chunkSize - 1; x >= 0; x--)
-        {
-            for (int y = chunkSize - 1; y >= 0; y--)
-            {
-                tile.color = new Color(temperatureMap[x,y], temperatureMap[x,y], temperatureMap[x,y]);
-                //if (temperatureMap[x, y] < 0.4f && humidityMap[x,y] > 0.4) tile.color = Color.blue; else tile.color = Color.green;
-
-                tilemap.SetTile(new Vector3Int(gridPos.x + x, gridPos.y + y, 0), tile);
-                tilemap.RefreshTile(new Vector3Int(gridPos.x + x, gridPos.y + y, 0));
-            }
-        }
-
+        GenerateChunkTiles(gridPos, continentalityMap, heightMap, temperatureMap, humidityMap);
         loadedChunks.Add(chunkPos);
         return true;
     }
+    private void GenerateChunkTiles(Vector2Int gridPos, float[,] continentalityMap, float[,] heightMap, float[,] temperatureMap, float[,] humidityMap)
+    {
+        for (int y = 0; y < chunkSize; y++)
+        {
+            for (int x = 0; x < chunkSize; x++)
+            {
+                CustomTile ct = ScriptableObject.CreateInstance<CustomTile>();
+                ct.continentalityValue = continentalityMap[x, y];
+                ct.heightValue = heightMap[x, y];
+                ct.temperatureValue = temperatureMap[x, y];
+                ct.humidityValue = humidityMap[x, y];
 
+                if (showNoise)
+                {
+                    ct.EnableDebug(WaveNoise);
+                }
+                else
+                {
+                    if (continentalityMap[x, y] < 0.35f)
+                    {
+                        if (continentalityMap[x, y] < 0.17f && heightMap[x, y] > 0.5f) ct.SetTerrain(Terrain.Land);
+                        else ct.SetTerrain(Terrain.Water);
+                    }
+                    else
+                    {
+                        switch (heightMap[x, y])
+                        {
+                            case < 0.3f:
+                                ct.SetTerrain(Terrain.Mountain);
+                                break;
+                            case > 0.68f:
+                                ct.SetTerrain(Terrain.Water);
+                                break;
+                            default:
+                                switch(temperatureMap[x, y])
+                                {
+                                    case < 0.25f:
+                                        ct.SetTerrain(Terrain.Desert);
+                                        break;
+                                    case >= 0.25f and <= 0.35f:
+                                        if (humidityMap[x, y] < 0.35f) ct.SetTerrain(Terrain.Jungle);
+                                        else if (humidityMap[x, y] < 0.45f) ct.SetTerrain(Terrain.Forest);
+                                        else ct.SetTerrain(Terrain.Land);
+                                        break;
+                                    case > 0.35f and < 0.8f:
+                                        if (humidityMap[x, y] < 0.35f) ct.SetTerrain(Terrain.Forest);
+                                        else ct.SetTerrain(Terrain.Land);
+                                        break;
+                                    default:
+                                        ct.SetTerrain(Terrain.Land);
+                                        break;
+                                }
+                                break;
+                        }
+                    }
+                }
+                tilemap.SetTile(new Vector3Int(gridPos.x + x, gridPos.y + y, 0), ct);
+                tilemap.RefreshTile(new Vector3Int(gridPos.x + x, gridPos.y + y, 0));
+            }
+        }
+    }
+    public void ReloadChunks()
+    {
+        tilemap.ClearAllTiles();
+        loadedChunks.Clear();
+        StartCoroutine(RenderChunks2(currentChunk));
+    }
 
+    public void DrawChunkBorders()
+    {
+        var gap = (chunkSize - 1);
+        foreach (var chunk in loadedChunks)
+        {
+            var startPos = tilemap.CellToWorld((Vector3Int)ChunkToGridCoords(chunk.x, chunk.y));
+            var endPos = tilemap.CellToWorld((Vector3Int)ChunkToGridCoords(chunk.x, chunk.y) + new Vector3Int(gap, gap));
+            Debug.DrawLine(new Vector3(startPos.x, startPos.y), new Vector3(endPos.x, startPos.y), Color.red);
+            Debug.DrawLine(new Vector3(startPos.x, startPos.y), new Vector3(startPos.x, endPos.y), Color.red);
+            Debug.DrawLine(new Vector3(startPos.x, endPos.y), new Vector3(endPos.x, endPos.y), Color.red);
+            Debug.DrawLine(new Vector3(endPos.x, startPos.y), new Vector3(endPos.x, endPos.y), Color.red);
+        }
+    }
 
     /// <summary>
     /// Returns the chunk coordinates of the chunk in which the (x,y) point is present.
@@ -186,5 +253,9 @@ public class ChunkLoader : MonoBehaviour
         return new Vector2Int(chunkX * chunkSize, chunkY * chunkSize);
     }
 
-
+    public void SwitchNoise()
+    {
+        showNoise = !showNoise;
+        ReloadChunks();
+    }
 }
