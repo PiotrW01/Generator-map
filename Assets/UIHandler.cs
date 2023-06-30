@@ -136,6 +136,13 @@ public class UIHandler : MonoBehaviour
                 //Debug.Log(EditWindowContent.transform.GetChild(i).name);
                 EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().LoadWaves();
             }
+        } else
+        {
+            for (int i = 0; i < EditWindowContent.transform.childCount; i++)
+            {
+                //Debug.Log(EditWindowContent.transform.GetChild(i).name);
+                EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().DeleteWaves();
+            }
         }
     }
 

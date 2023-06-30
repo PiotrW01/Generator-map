@@ -15,7 +15,7 @@ public class WaveEditor : MonoBehaviour
     public TextMeshProUGUI freqText;
     public TextMeshProUGUI ampText;
 
-    private Wave[] wavesReference;
+    public Wave[] wavesReference;
 
     private void Awake()
     {

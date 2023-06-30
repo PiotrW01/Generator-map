@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -7,16 +8,24 @@ using UnityEngine.UI;
 public class NoiseMapEditor : MonoBehaviour
 {
     public NoiseMap noiseMapID;
-    //public int NoiseMapID = 0;
     public GameObject WaveEditorPrefab;
     private Wave[] waves;
-    private List<Wave> waveList;
+    private List<GameObject> waveList;
 
     public void AddWave()
     {
-        // Rewrite
         GameObject newChild = Instantiate(WaveEditorPrefab);
+        newChild.transform.Find("FreqSlider").GetComponent<Slider>().value = 0;
+        newChild.transform.Find("AmpSlider").GetComponent<Slider>().value = 0;
+        newChild.transform.Find("WaveNumber").GetComponent<TextMeshProUGUI>().text = "#" + (waveList.Count + 1);
+
+        var waveEditor = newChild.transform.GetComponent<WaveEditor>();
+        waveEditor.waveID = waveList.Count;
+        waveEditor.noiseType = noiseMapID;
+
+        newChild.transform.Find("Button").GetComponent<Button>().onClick.AddListener(() => RemoveWave(newChild));
         newChild.transform.SetParent(transform, false);
+        waveList.Add(newChild);
     }
 
     public void LoadWaves()
@@ -37,10 +46,9 @@ public class NoiseMapEditor : MonoBehaviour
                 break;
         }
 
-        waveList = new List<Wave>(waves);
+        waveList = new List<GameObject>(waves.Length);
         int index = 0;
 
-        Debug.Log(waves[0].frequency);
         foreach (var wave in waves)
         {
             GameObject newChild = Instantiate(WaveEditorPrefab);
@@ -53,14 +61,39 @@ public class NoiseMapEditor : MonoBehaviour
             waveEditor.noiseType = noiseMapID;
 
             newChild.transform.Find("Button").GetComponent<Button>().onClick.AddListener(() => RemoveWave(newChild));
-
             newChild.transform.SetParent(transform, false);
+
+            waveList.Add(newChild);
             index++;
         }
     }
 
     public void RemoveWave(GameObject gm)
     {
+        int i = waveList.FindIndex(obj => obj == gm);
+        int index = 1;
+
+        foreach (GameObject wave in waveList.GetRange(i + 1, waveList.Count - i - 1))
+        {
+            wave.transform.Find("WaveNumber").GetComponent<TextMeshProUGUI>().text = "#" + (i + index);
+            wave.transform.GetComponent<WaveEditor>().waveID = i + index - 1;
+            index++;
+        }
+        waveList.RemoveAt(i);
         Destroy(gm);
+    }
+
+    public void DeleteWaves()
+    {
+        foreach (GameObject wave in waveList)
+        {
+            Destroy(wave);
+        }
+        waveList.Clear();
+    }
+
+    public void UnloadWaves()
+    {
+
     }
 }
