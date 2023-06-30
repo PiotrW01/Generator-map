@@ -5,7 +5,7 @@ using UnityEngine.Tilemaps;
 
 public enum Terrain
 {
-    Debug,
+    Noise,
     Water,
     Land,
     Mountain,
@@ -26,8 +26,9 @@ public class CustomTile : Tile
         sprite = TerrainSprites.GetSprite(terrainType);
     }
     
-    public void EnableDebug(NoiseMap wave)
+    public void ShowNoise(NoiseMap wave)
     {
+        sprite = TerrainSprites.GetSprite(Terrain.Noise);
         switch (wave)
         {
             case NoiseMap.Height:
@@ -45,13 +46,5 @@ public class CustomTile : Tile
             default:
                 return;
         }
-        sprite = TerrainSprites.GetSprite(Terrain.Debug);
     }
-
-/*    public void DisableDebug()
-    {
-        sprite = TerrainSprites.GetSprite(terrainType);
-        color = Color.white;
-    }*/
-
 }

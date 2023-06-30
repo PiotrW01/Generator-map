@@ -139,10 +139,10 @@ public class ChunkLoader : MonoBehaviour
             return false;
         }
 
-        float[,] continentalityMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.continentalityWaves, new Vector2(gridPos.x, gridPos.y), seed);
-        float[,] heightMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.heightWaves, new Vector2(gridPos.x, gridPos.y), seed);
-        float[,] temperatureMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.temperatureWaves, new Vector2(gridPos.x, gridPos.y), seed);
-        float[,] humidityMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.humidityWaves, new Vector2(gridPos.x, gridPos.y), seed);
+        float[,] continentalityMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.CWaves, new Vector2(gridPos.x, gridPos.y), seed);
+        float[,] heightMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.HWaves, new Vector2(gridPos.x, gridPos.y), seed);
+        float[,] temperatureMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.TWaves, new Vector2(gridPos.x, gridPos.y), seed);
+        float[,] humidityMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.HMWaves, new Vector2(gridPos.x, gridPos.y), seed);
 
 
         GenerateChunkTiles(gridPos, continentalityMap, heightMap, temperatureMap, humidityMap);
@@ -160,50 +160,46 @@ public class ChunkLoader : MonoBehaviour
                 ct.heightValue = heightMap[x, y];
                 ct.temperatureValue = temperatureMap[x, y];
                 ct.humidityValue = humidityMap[x, y];
-
-                if (showNoise)
+                if (continentalityMap[x, y] < 0.35f)
                 {
-                    ct.EnableDebug(selectedNoiseMap);
+                    if (continentalityMap[x, y] < 0.17f && heightMap[x, y] > 0.5f) ct.SetTerrain(Terrain.Land);
+                    else ct.SetTerrain(Terrain.Water);
                 }
                 else
                 {
-                    if (continentalityMap[x, y] < 0.35f)
+                    switch (heightMap[x, y])
                     {
-                        if (continentalityMap[x, y] < 0.17f && heightMap[x, y] > 0.5f) ct.SetTerrain(Terrain.Land);
-                        else ct.SetTerrain(Terrain.Water);
+                        case < 0.3f:
+                            ct.SetTerrain(Terrain.Mountain);
+                            break;
+                        case > 0.68f:
+                            ct.SetTerrain(Terrain.Water);
+                            break;
+                        default:
+                            switch(temperatureMap[x, y])
+                            {
+                                case < 0.25f:
+                                    ct.SetTerrain(Terrain.Desert);
+                                    break;
+                                case >= 0.25f and <= 0.35f:
+                                    if (humidityMap[x, y] < 0.35f) ct.SetTerrain(Terrain.Jungle);
+                                    else if (humidityMap[x, y] < 0.45f) ct.SetTerrain(Terrain.Forest);
+                                    else ct.SetTerrain(Terrain.Land);
+                                    break;
+                                case > 0.35f and < 0.8f:
+                                    if (humidityMap[x, y] < 0.35f) ct.SetTerrain(Terrain.Forest);
+                                    else ct.SetTerrain(Terrain.Land);
+                                    break;
+                                default:
+                                    ct.SetTerrain(Terrain.Land);
+                                    break;
+                            }
+                            break;
                     }
-                    else
-                    {
-                        switch (heightMap[x, y])
-                        {
-                            case < 0.3f:
-                                ct.SetTerrain(Terrain.Mountain);
-                                break;
-                            case > 0.68f:
-                                ct.SetTerrain(Terrain.Water);
-                                break;
-                            default:
-                                switch(temperatureMap[x, y])
-                                {
-                                    case < 0.25f:
-                                        ct.SetTerrain(Terrain.Desert);
-                                        break;
-                                    case >= 0.25f and <= 0.35f:
-                                        if (humidityMap[x, y] < 0.35f) ct.SetTerrain(Terrain.Jungle);
-                                        else if (humidityMap[x, y] < 0.45f) ct.SetTerrain(Terrain.Forest);
-                                        else ct.SetTerrain(Terrain.Land);
-                                        break;
-                                    case > 0.35f and < 0.8f:
-                                        if (humidityMap[x, y] < 0.35f) ct.SetTerrain(Terrain.Forest);
-                                        else ct.SetTerrain(Terrain.Land);
-                                        break;
-                                    default:
-                                        ct.SetTerrain(Terrain.Land);
-                                        break;
-                                }
-                                break;
-                        }
-                    }
+                }
+                if (showNoise)
+                {
+                    ct.ShowNoise(selectedNoiseMap);
                 }
                 tilemap.SetTile(new Vector3Int(gridPos.x + x, gridPos.y + y, 0), ct);
                 tilemap.RefreshTile(new Vector3Int(gridPos.x + x, gridPos.y + y, 0));

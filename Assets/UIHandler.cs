@@ -10,10 +10,18 @@ public class UIHandler : MonoBehaviour
     public TMP_Dropdown dropDown;
     public TMP_Dropdown resDropDown;
 
-    public Slider freqSlider;
+    public TextMeshProUGUI CText;
+    public TextMeshProUGUI HText;
+    public TextMeshProUGUI TText;
+    public TextMeshProUGUI HMText;
+    public TextMeshProUGUI terrainText;
+    public TextMeshProUGUI chunkPosText;
+    public TextMeshProUGUI gridPosText;
+
+/*    public Slider freqSlider;
     public Slider ampSlider;
     public TextMeshProUGUI freqText;
-    public TextMeshProUGUI ampText;
+    public TextMeshProUGUI ampText;*/
     //public TextMeshProUGUI currentWaveText;
     //private int currentWave = 0;
 
@@ -24,13 +32,13 @@ public class UIHandler : MonoBehaviour
         renderDistanceText.text = ChunkLoader.renderDistance.ToString();
         renderDistanceSlider.value = ChunkLoader.renderDistance;
 
-        freqSlider.onValueChanged.AddListener((v) => {
+/*        freqSlider.onValueChanged.AddListener((v) => {
               
             freqText.text = v.ToString("0.000");
         });
         ampSlider.onValueChanged.AddListener((v) => {
             ampText.text = v.ToString("0.000");
-        });
+        });*/
 
         renderDistanceSlider.onValueChanged.AddListener((v) =>
         {
@@ -53,6 +61,20 @@ public class UIHandler : MonoBehaviour
         });
     }
 
+    private void FixedUpdate()
+    {
+        var tilemap = ChunkLoader.Instance.tilemap;
+        var pos = tilemap.WorldToCell(Camera.main.transform.position);
+        CustomTile tile = tilemap.GetTile<CustomTile>(pos);
+        CText.text = "C: " + tile.continentalityValue.ToString();
+        HText.text = "H: " + tile.heightValue.ToString();
+        TText.text = "T: " + tile.temperatureValue.ToString();
+        HMText.text = "HM: " + tile.humidityValue.ToString();
+        terrainText.text = "Terrain: " + tile.terrainType.ToString();
+        Vector2Int chunkPos = ChunkLoader.Instance.GridToChunkCoords(pos.x, pos.y);
+        chunkPosText.text = "Current chunk x: " + chunkPos.x.ToString() + " y: " + chunkPos.y.ToString();
+        gridPosText.text = "Current grid pos x: " + pos.x.ToString() + " y: " + pos.y.ToString();
+}
     public void ChangeDisplayedNoiseMap()
     {
         switch (dropDown.value)
@@ -85,6 +107,16 @@ public class UIHandler : MonoBehaviour
     public void DisplayNoise()
     {
         ChunkLoader.Instance.SwitchNoise();
+    }
+
+    public void SavePreset()
+    {
+        string presetName = "abc";
+        WaveManager.Instance.SavePreset(presetName);
+    }
+    public void LoadPreset()
+    {
+        WaveManager.Instance.LoadPreset(0);
     }
 
     public void QuitGame()

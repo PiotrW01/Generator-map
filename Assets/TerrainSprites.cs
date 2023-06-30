@@ -6,7 +6,7 @@ public class TerrainSprites : MonoBehaviour
     private static Dictionary<Terrain, Sprite> spriteDictionary;
 
     [SerializeField]
-    private Sprite debug;
+    private Sprite noise;
     [SerializeField]
     private Sprite water;
     [SerializeField]
@@ -30,7 +30,7 @@ public class TerrainSprites : MonoBehaviour
             [Terrain.Desert] = desert,
             [Terrain.Jungle] = jungle,
             [Terrain.Forest] = forest,
-            [Terrain.Debug] = debug,
+            [Terrain.Noise] = noise,
         };
     }
 

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 public enum NoiseMap
@@ -12,10 +14,16 @@ public class WaveManager : MonoBehaviour
 {
     public static WaveManager Instance;
 
-    public Wave[] heightWaves;
-    public Wave[] continentalityWaves;
-    public Wave[] temperatureWaves;
-    public Wave[] humidityWaves;
+    private Wave[] defaultHWaves;
+    private Wave[] defaultCWaves;
+    private Wave[] defaultTWaves;
+    private Wave[] defaultHMWaves;
+
+    public string[] presetNames;
+    public Wave[] HWaves;
+    public Wave[] CWaves;
+    public Wave[] TWaves;
+    public Wave[] HMWaves;
     int tempSeed;
 
 
@@ -36,30 +44,44 @@ public class WaveManager : MonoBehaviour
         tempSeed = ChunkLoader.Instance.seed;
         Random.InitState(tempSeed);
 
-        heightWaves = new Wave[] {
+        defaultHWaves = new Wave[] {
             new Wave(Random.Range(0, 9999), 0.0134f, 0.37f),
             new Wave(Random.Range(0, 9999), 0.0387f, 0.61f),
         };
 
-        continentalityWaves = new Wave[]
+        defaultCWaves = new Wave[]
         {
             new Wave(Random.Range(0, 9999), 0.01f, 1f),
             new Wave(Random.Range(0, 9999), 0.0363f, 0.09f)
         };
 
-        temperatureWaves = new Wave[]
+        defaultTWaves = new Wave[]
         {
             new Wave(Random.Range(0, 9999), 0.005f, 0.4f),
             new Wave(Random.Range(0, 9999), 0.0276f, 0.09f)
         };
 
-        humidityWaves = new Wave[]
+        defaultHMWaves = new Wave[]
         {
             new Wave(Random.Range(0, 9999), 0.06f, 0.75f),
             new Wave(Random.Range(0, 9999), 0.013f, 0.07f),
             new Wave(Random.Range(0, 9999), 0.013f, 0.17f),
         };
-    }
+
+
+        CWaves = defaultCWaves;
+        HWaves = defaultHWaves;
+        TWaves = defaultTWaves;
+        HMWaves = defaultHMWaves;
+        try
+        {
+            presetNames = JsonHelper.FromJson<string>("presetNames");
+        } catch
+        {
+            presetNames = new string[10];
+            Debug.Log("No saved presets.");
+        }
+}
 
     private void Update()
     {
@@ -71,22 +93,74 @@ public class WaveManager : MonoBehaviour
         tempSeed = ChunkLoader.Instance.seed;
         Random.InitState(tempSeed);
 
-        foreach (var wave in continentalityWaves)
+        foreach (var wave in defaultCWaves)
         {
             wave.seed = Random.Range(0, 9999);
         }
-        foreach (var wave in heightWaves)
+        foreach (var wave in defaultHWaves)
         {
             wave.seed = Random.Range(0, 9999);
         }
-        foreach (var wave in humidityWaves)
+        foreach (var wave in defaultHMWaves)
         {
             wave.seed = Random.Range(0, 9999);
         }
-        foreach (var wave in temperatureWaves)
+        foreach (var wave in defaultTWaves)
         {
             wave.seed = Random.Range(0, 9999);
         }
+    }
+
+    public void ResetToDefault()
+    {
+        HWaves = defaultHWaves;
+        CWaves = defaultCWaves;
+        TWaves = defaultTWaves;
+        HMWaves = defaultHMWaves;
+    }
+
+    public void LoadPreset(int i)
+    {
+        string jsonArray;
+        try {
+        jsonArray = PlayerPrefs.GetString(presetNames[i] + "_C");
+        CWaves = JsonHelper.FromJson<Wave>(jsonArray);        
+        jsonArray = PlayerPrefs.GetString(presetNames[i] + "_H");
+        HWaves = JsonHelper.FromJson<Wave>(jsonArray);
+        jsonArray = PlayerPrefs.GetString(presetNames[i] + "_T");
+        TWaves = JsonHelper.FromJson<Wave>(jsonArray);
+        jsonArray = PlayerPrefs.GetString(presetNames[i] + "_HM");
+        HMWaves = JsonHelper.FromJson<Wave>(jsonArray);
+        } catch
+        {
+            Debug.Log("Failed to load preset");
+        }
+    }
+
+    public void SavePreset(string presetName)
+    {
+        string jsonArray;
+        jsonArray = JsonHelper.ToJson(CWaves, true);
+        PlayerPrefs.SetString(presetName + "_C", jsonArray);
+        jsonArray = JsonHelper.ToJson(HWaves, true);
+        PlayerPrefs.SetString(presetName + "_H", jsonArray);
+        jsonArray = JsonHelper.ToJson(TWaves, true);
+        PlayerPrefs.SetString(presetName + "_T", jsonArray);
+        jsonArray = JsonHelper.ToJson(HMWaves, true);
+        PlayerPrefs.SetString(presetName + "_HM", jsonArray);
+
+        for (int i = 0; i < presetNames.Length; i++)
+        {
+            if (presetNames[i] == null || presetNames[i] == presetName)
+            {
+                presetNames[i] = presetName;
+                break;
+            }
+        }
+        jsonArray = JsonHelper.ToJson(presetNames, true);
+        PlayerPrefs.SetString("presetNames", jsonArray);
+
+        PlayerPrefs.Save();
     }
 }
 
@@ -103,5 +177,10 @@ public class Wave
         this.seed = seed;
         this.frequency = frequency;
         this.amplitude = amplitude;
+    }
+
+    public override string ToString()
+    {
+        return "seed: " + seed + " freq: " + frequency + " amp:" + amplitude;
     }
 }
