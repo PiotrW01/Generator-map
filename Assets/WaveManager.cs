@@ -20,8 +20,8 @@ public class WaveManager : MonoBehaviour
     private Wave[] defaultHMWaves;
 
     public string[] presetNames;
-    public Wave[] HWaves;
     public Wave[] CWaves;
+    public Wave[] HWaves;
     public Wave[] TWaves;
     public Wave[] HMWaves;
     int tempSeed;
@@ -44,15 +44,15 @@ public class WaveManager : MonoBehaviour
         tempSeed = ChunkLoader.Instance.seed;
         Random.InitState(tempSeed);
 
-        defaultHWaves = new Wave[] {
-            new Wave(Random.Range(0, 9999), 0.0134f, 0.37f),
-            new Wave(Random.Range(0, 9999), 0.0387f, 0.61f),
-        };
-
         defaultCWaves = new Wave[]
         {
             new Wave(Random.Range(0, 9999), 0.01f, 1f),
             new Wave(Random.Range(0, 9999), 0.0363f, 0.09f)
+        };
+
+        defaultHWaves = new Wave[] {
+            new Wave(Random.Range(0, 9999), 0.0134f, 0.37f),
+            new Wave(Random.Range(0, 9999), 0.0387f, 0.61f),
         };
 
         defaultTWaves = new Wave[]

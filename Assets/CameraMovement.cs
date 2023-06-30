@@ -37,13 +37,13 @@ public class CameraMovement : MonoBehaviour
                                     Camera.main.transform.position + new Vector3(0, 1, 0), speed * Time.deltaTime);
         }
 
-        if(Input.mouseScrollDelta.y > 0 && Camera.main.orthographicSize > minZoom)
+        if(Input.mouseScrollDelta.y > 0 && Camera.main.orthographicSize > minZoom && !MouseOverEditMenu.isOverMenu)
         {
             if((Camera.main.orthographicSize /= 1.1f) < minZoom)
             {
                 Camera.main.orthographicSize = minZoom;
             }
-        } else if(Input.mouseScrollDelta.y < 0 && Camera.main.orthographicSize < maxZoom)
+        } else if(Input.mouseScrollDelta.y < 0 && Camera.main.orthographicSize < maxZoom && !MouseOverEditMenu.isOverMenu)
         {
             if ((Camera.main.orthographicSize *= 1.1f) > maxZoom)
             {
