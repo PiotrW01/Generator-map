@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public enum NoiseMap
 {
@@ -14,17 +18,16 @@ public class WaveManager : MonoBehaviour
 {
     public static WaveManager Instance;
 
-    private Wave[] defaultHWaves;
-    private Wave[] defaultCWaves;
-    private Wave[] defaultTWaves;
-    private Wave[] defaultHMWaves;
+    private Layer[] defaultHLayers;
+    private Layer[] defaultCLayers;
+    private Layer[] defaultTLayers;
+    private Layer[] defaultHMLayers;
 
-    public string[] presetNames;
-    public Wave[] CWaves;
-    public Wave[] HWaves;
-    public Wave[] TWaves;
-    public Wave[] HMWaves;
-    int tempSeed;
+    public List<string> presetNames;
+    public List<Layer> CLayers;
+    public List<Layer> HLayers;
+    public List<Layer> TLayers;
+    public List<Layer> HMLayers;
 
 
     private void Awake()
@@ -41,96 +44,79 @@ public class WaveManager : MonoBehaviour
 
     private void Start()
     {
-        tempSeed = ChunkLoader.Instance.seed;
-        Random.InitState(tempSeed);
-
-        defaultCWaves = new Wave[]
+        // Set default 
+        defaultCLayers = new Layer[]
         {
-            new Wave(Random.Range(0, 9999), 0.01f, 1f),
-            new Wave(Random.Range(0, 9999), 0.0363f, 0.09f)
+            new Layer(0.01f, 1f),
+            new Layer(0.0363f, 0.09f)
         };
 
-        defaultHWaves = new Wave[] {
-            new Wave(Random.Range(0, 9999), 0.0134f, 0.37f),
-            new Wave(Random.Range(0, 9999), 0.0387f, 0.61f),
+        defaultHLayers = new Layer[] {
+            new Layer( 0.0134f, 0.37f),
+            new Layer(0.0387f, 0.61f),
         };
 
-        defaultTWaves = new Wave[]
+        defaultTLayers = new Layer[]
         {
-            new Wave(Random.Range(0, 9999), 0.005f, 0.4f),
-            new Wave(Random.Range(0, 9999), 0.0276f, 0.09f)
+            new Layer(0.005f, 0.4f),
+            new Layer(0.0276f, 0.09f)
         };
 
-        defaultHMWaves = new Wave[]
+        defaultHMLayers = new Layer[]
         {
-            new Wave(Random.Range(0, 9999), 0.06f, 0.75f),
-            new Wave(Random.Range(0, 9999), 0.013f, 0.07f),
-            new Wave(Random.Range(0, 9999), 0.013f, 0.17f),
+            new Layer(0.06f, 0.75f),
+            new Layer(0.013f, 0.07f),
+            new Layer( 0.013f, 0.17f),
         };
 
-
-        CWaves = defaultCWaves;
-        HWaves = defaultHWaves;
-        TWaves = defaultTWaves;
-        HMWaves = defaultHMWaves;
+        ResetToDefault();
         try
         {
-            presetNames = JsonHelper.FromJson<string>("presetNames");
+            var jsonArray = PlayerPrefs.GetString("presetNames");
+            PresetWrapper presetWrapper = JsonUtility.FromJson<PresetWrapper>(jsonArray);
+            presetNames = presetWrapper.presetNames;
         } catch
         {
-            presetNames = new string[10];
             Debug.Log("No saved presets.");
-        }
-}
-
-    private void Update()
-    {
-        if (tempSeed != ChunkLoader.Instance.seed) UpdateWaveSeeds();
-    }
-
-    public void UpdateWaveSeeds()
-    {
-        tempSeed = ChunkLoader.Instance.seed;
-        Random.InitState(tempSeed);
-
-        foreach (var wave in defaultCWaves)
-        {
-            wave.seed = Random.Range(0, 9999);
-        }
-        foreach (var wave in defaultHWaves)
-        {
-            wave.seed = Random.Range(0, 9999);
-        }
-        foreach (var wave in defaultHMWaves)
-        {
-            wave.seed = Random.Range(0, 9999);
-        }
-        foreach (var wave in defaultTWaves)
-        {
-            wave.seed = Random.Range(0, 9999);
         }
     }
 
     public void ResetToDefault()
     {
-        HWaves = defaultHWaves;
-        CWaves = defaultCWaves;
-        TWaves = defaultTWaves;
-        HMWaves = defaultHMWaves;
+        CLayers = Copy(defaultCLayers);
+        HLayers = Copy(defaultHLayers);
+        TLayers = Copy(defaultTLayers);
+        HMLayers = Copy(defaultHMLayers);
     }
 
-    public void LoadPreset(int i)
+    public List<Layer> Copy(Layer[] layers)
+    {
+        List<Layer> copy = new List<Layer>();
+        foreach (var layer in layers)
+        {
+            copy.Add(new Layer(layer.frequency, layer.amplitude));
+        }
+        return copy;
+    }
+
+    public void LoadPreset(string presetName)
     {
         string jsonArray;
+        LayerWrapper layerWrapper;
+
         try {
-        jsonArray = PlayerPrefs.GetString(presetNames[i] + "_C");
-        CWaves = JsonHelper.FromJson<Wave>(jsonArray);        
-        jsonArray = PlayerPrefs.GetString(presetNames[i] + "_H");
-        HWaves = JsonHelper.FromJson<Wave>(jsonArray);
-        jsonArray = PlayerPrefs.GetString(presetNames[i] + "_T");
-        TWaves = JsonHelper.FromJson<Wave>(jsonArray);
-        jsonArray = PlayerPrefs.GetString(presetNames[i] + "_HM");
-        HMWaves = JsonHelper.FromJson<Wave>(jsonArray);
+            jsonArray = PlayerPrefs.GetString(presetName + "_C");
+            layerWrapper = JsonUtility.FromJson<LayerWrapper>(jsonArray);
+            CLayers = layerWrapper.layers;
+            jsonArray = PlayerPrefs.GetString(presetName + "_H");
+            layerWrapper = JsonUtility.FromJson<LayerWrapper>(jsonArray);
+            HLayers = layerWrapper.layers;
+            jsonArray = PlayerPrefs.GetString(presetName + "_T");
+            layerWrapper = JsonUtility.FromJson<LayerWrapper>(jsonArray);
+            TLayers = layerWrapper.layers;
+            jsonArray = PlayerPrefs.GetString(presetName + "_HM");
+            layerWrapper = JsonUtility.FromJson<LayerWrapper>(jsonArray);
+            HMLayers = layerWrapper.layers;
         } catch
         {
             Debug.Log("Failed to load preset");
@@ -140,47 +126,79 @@ public class WaveManager : MonoBehaviour
     public void SavePreset(string presetName)
     {
         string jsonArray;
-        jsonArray = JsonHelper.ToJson(CWaves, true);
+        LayerWrapper layerWrapper = new()
+        {
+            layers = CLayers
+        };
+        jsonArray = JsonUtility.ToJson(layerWrapper, true);
         PlayerPrefs.SetString(presetName + "_C", jsonArray);
-        jsonArray = JsonHelper.ToJson(HWaves, true);
+
+        layerWrapper.layers = HLayers;
+        jsonArray = JsonUtility.ToJson(layerWrapper, true);
         PlayerPrefs.SetString(presetName + "_H", jsonArray);
-        jsonArray = JsonHelper.ToJson(TWaves, true);
+
+        layerWrapper.layers = TLayers;
+        jsonArray = JsonUtility.ToJson(layerWrapper, true);
         PlayerPrefs.SetString(presetName + "_T", jsonArray);
-        jsonArray = JsonHelper.ToJson(HMWaves, true);
+
+        layerWrapper.layers = HMLayers;
+        jsonArray = JsonUtility.ToJson(layerWrapper, true);
         PlayerPrefs.SetString(presetName + "_HM", jsonArray);
 
-        for (int i = 0; i < presetNames.Length; i++)
+        if (!presetName.Contains(presetName))
         {
-            if (presetNames[i] == null || presetNames[i] == presetName)
-            {
-                presetNames[i] = presetName;
-                break;
-            }
+            presetNames.Add(presetName);
         }
-        jsonArray = JsonHelper.ToJson(presetNames, true);
+        PresetWrapper presetWrapper = new() { presetNames = presetNames};
+        jsonArray = JsonUtility.ToJson(presetWrapper, true);
         PlayerPrefs.SetString("presetNames", jsonArray);
+        Debug.Log(jsonArray);
+        PlayerPrefs.Save();
+    }
 
+    public void RemovePreset(string presetName)
+    {
+        PlayerPrefs.DeleteKey(presetName + "_C");
+        PlayerPrefs.DeleteKey(presetName + "_H");
+        PlayerPrefs.DeleteKey(presetName + "_T");
+        PlayerPrefs.DeleteKey(presetName + "_HM");
+
+        presetNames.Remove(presetName);
+        PresetWrapper presetWrapper = new() { presetNames = presetNames };
+        var jsonArray = JsonUtility.ToJson(presetWrapper, true);
+        PlayerPrefs.SetString("presetNames", jsonArray);
+        Debug.Log(jsonArray);
         PlayerPrefs.Save();
     }
 }
 
 [System.Serializable]
-public class Wave
+public class Layer
 {
-    public int seed;
     [Range(0.005f, 0.06f)]
     public float frequency;
     [Range(0.005f, 1f)]
     public float amplitude;
-    public Wave(int seed, float frequency, float amplitude)
+    public Layer(float frequency = 0.005f, float amplitude = 0.005f)
     {
-        this.seed = seed;
         this.frequency = frequency;
         this.amplitude = amplitude;
     }
 
     public override string ToString()
     {
-        return "seed: " + seed + " freq: " + frequency + " amp:" + amplitude;
+        return "freq: " + frequency + " amp:" + amplitude;
     }
+}
+
+[System.Serializable]
+public class LayerWrapper
+{
+    public List<Layer> layers;
+}
+
+[System.Serializable]
+public class PresetWrapper
+{
+    public List<string> presetNames;
 }

@@ -116,16 +116,6 @@ public class UIHandler : MonoBehaviour
         ChunkLoader.Instance.SwitchNoise();
     }
 
-    public void SavePreset()
-    {
-        string presetName = "abc";
-        WaveManager.Instance.SavePreset(presetName);
-    }
-    public void LoadPreset()
-    {
-        WaveManager.Instance.LoadPreset(0);
-    }
-
     public void EditPreset()
     {
         EditWindow.SetActive(!EditWindow.activeSelf);
@@ -133,22 +123,29 @@ public class UIHandler : MonoBehaviour
         {
             for (int i = 0; i < EditWindowContent.transform.childCount; i++)
             {
-                //Debug.Log(EditWindowContent.transform.GetChild(i).name);
-                EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().LoadWaves();
+                EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().LoadLayers();
             }
         } else
         {
             for (int i = 0; i < EditWindowContent.transform.childCount; i++)
             {
-                //Debug.Log(EditWindowContent.transform.GetChild(i).name);
-                EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().DeleteWaves();
+                EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().UnloadLayers();
             }
         }
+    }
+
+    public void RandomizeSeed()
+    {
+        var newSeed = Random.Range(-int.MaxValue + 1, int.MaxValue - 1);
+        ChunkLoader.Instance.seed = newSeed;
+        seed.text = newSeed.ToString();
     }
 
     public void QuitGame()
     {
         Application.Quit();
     }
-
 }
+
+
+

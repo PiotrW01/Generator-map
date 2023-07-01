@@ -1,4 +1,4 @@
-using System.Collections;
+/*using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -22,21 +22,21 @@ public class NoiseMapGenerator : MonoBehaviour
     [Header("Height Map")]
     public Wave[] heightWaves;
     public float[,] heightMap;
-    /*    [Header("Moisture Map")]
+    *//*    [Header("Moisture Map")]
         public Wave[] moistureWaves;
         private float[,] moistureMap;
         [Header("Heat Map")]
         public Wave[] heatWaves;
-        private float[,] heatMap;*/
+        private float[,] heatMap;*//*
     private bool isColorEnabled = false;
 
-    Wave[] testWaves = {
+*//*    Wave[] testWaves = {
             new Wave(10, 0.03f, 0.05f),
             new Wave(12, 0.03f, 0.06f),
             new Wave(7, 0.04f, 0.07f),
             new Wave(22, 0.03f, 0.08f),
             new Wave(32, 0.05f, 0.11f),
-        };
+        };*//*
 
     private void Start()
     {
@@ -49,7 +49,7 @@ public class NoiseMapGenerator : MonoBehaviour
         // generacja noiseMapy na tileMapie
         GenerateMap();
     }
-
+*//*
     public static float[,] Generate(int width, int height, float scale, Wave[] waves, Vector2 offset)
     {
         float[,] noiseMap = new float[width, height];
@@ -73,7 +73,7 @@ public class NoiseMapGenerator : MonoBehaviour
         }
 
         return noiseMap;
-    }
+    }*//*
 
     public void GenerateMap()
     {
@@ -81,7 +81,7 @@ public class NoiseMapGenerator : MonoBehaviour
         tilemap.ClearAllTiles();
         // height map
         // generacja noiseMap 
-        heightMap = Generate(width, height, scale, testWaves, offset);
+        //heightMap = Generate(width, height, scale, testWaves, offset);
         // moisture map
         //moistureMap = Generate(width, height, scale, moistureWaves, offset);
         // heat map
@@ -115,3 +115,4 @@ public class NoiseMapGenerator : MonoBehaviour
 
 }
 
+*/

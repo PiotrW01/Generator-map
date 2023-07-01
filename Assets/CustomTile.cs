@@ -26,10 +26,10 @@ public class CustomTile : Tile
         sprite = TerrainSprites.GetSprite(terrainType);
     }
     
-    public void ShowNoise(NoiseMap wave)
+    public void ShowNoise(NoiseMap map)
     {
         sprite = TerrainSprites.GetSprite(Terrain.Noise);
-        switch (wave)
+        switch (map)
         {
             case NoiseMap.Height:
                 color = new Color(heightValue, heightValue, heightValue);

@@ -1,12 +1,13 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public static class NoiseGenerator
 {
-    public static float[,] GenerateNoiseMap(int chunkSize, float scale, Wave[] waves, Vector2 chunkStartPos, int seed)
+    public static float[,] GenerateNoiseMap(int chunkSize, float scale, List<Layer> layers, Vector2 chunkStartPos, int seed)
     {
         float[,] noiseMap = new float[chunkSize, chunkSize];
-        if (waves.Length == 0) return noiseMap;
+        if (layers.Count == 0) return noiseMap;
 
         UnityEngine.Random.InitState(seed);
 
@@ -21,42 +22,17 @@ public static class NoiseGenerator
                 float samplePosY = (chunkStartPos.y + y) * scale + offsetY;
 
                 float normalization = 0.0f;
-                foreach (Wave wave in waves)
+                foreach (Layer layer in layers)
                 {
-                    noiseMap[x, y] += wave.amplitude * Mathf.PerlinNoise(samplePosX * wave.frequency
-                                    + wave.seed, samplePosY * wave.frequency + wave.seed);
-                    normalization += wave.amplitude;
+                    UnityEngine.Random.InitState(seed);
+                    int layerSeed = UnityEngine.Random.Range(0, 9999);
+                    noiseMap[x, y] += layer.amplitude * Mathf.PerlinNoise(samplePosX * layer.frequency
+                                    + layerSeed, samplePosY * layer.frequency + layerSeed);
+                    normalization += layer.amplitude;
                 }
                 noiseMap[x, y] /= normalization;
             }
         }
-
-/*        // After generating the noiseMap
-        float minValue = float.MaxValue;
-        float maxValue = float.MinValue;
-
-        // Find the minimum and maximum values
-        for (int x = 0; x < chunkSize; x++)
-        {
-            for (int y = 0; y < chunkSize; y++)
-            {
-                float value = noiseMap[x, y];
-                minValue = Mathf.Min(minValue, value);
-                maxValue = Mathf.Max(maxValue, value);
-            }
-        }
-
-        // Normalize the values using min-max scaling
-        float range = maxValue - minValue;
-        for (int x = 0; x < chunkSize; x++)
-        {
-            for (int y = 0; y < chunkSize; y++)
-            {
-                noiseMap[x, y] = (noiseMap[x, y] - minValue) / range;
-            }
-        }*/
-
-
         return noiseMap;
     }
 }

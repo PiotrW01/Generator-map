@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -8,92 +6,93 @@ using UnityEngine.UI;
 public class NoiseMapEditor : MonoBehaviour
 {
     public NoiseMap noiseMapID;
-    public GameObject WaveEditorPrefab;
-    private Wave[] waves;
-    private List<GameObject> waveList;
+    public GameObject LayerEditorPrefab;
+    private List<Layer> layers;
+    private List<GameObject> layerEditors;
 
-    public void AddWave()
+    public void AddLayer()
     {
-        GameObject newChild = Instantiate(WaveEditorPrefab);
-        newChild.transform.Find("FreqSlider").GetComponent<Slider>().value = 0;
-        newChild.transform.Find("AmpSlider").GetComponent<Slider>().value = 0;
-        newChild.transform.Find("WaveNumber").GetComponent<TextMeshProUGUI>().text = "#" + (waveList.Count + 1);
+        layers.Add(new Layer());
 
-        var waveEditor = newChild.transform.GetComponent<WaveEditor>();
-        waveEditor.waveID = waveList.Count;
+        GameObject editor = Instantiate(LayerEditorPrefab);
+        editor.transform.Find("FreqSlider").GetComponent<Slider>().value = 0;
+        editor.transform.Find("AmpSlider").GetComponent<Slider>().value = 0;
+        editor.transform.Find("LayerNumber").GetComponent<TextMeshProUGUI>().text = "#" + (layerEditors.Count + 1);
+        
+        var waveEditor = editor.transform.GetComponent<WaveEditor>();
+        waveEditor.layerID = layerEditors.Count;
         waveEditor.noiseType = noiseMapID;
+        waveEditor.layerReference = layers[layers.Count - 1];
 
-        newChild.transform.Find("Button").GetComponent<Button>().onClick.AddListener(() => RemoveWave(newChild));
-        newChild.transform.SetParent(transform, false);
-        waveList.Add(newChild);
+        editor.transform.Find("Button").GetComponent<Button>().onClick.AddListener(() => RemoveLayer(editor));
+        editor.transform.SetParent(transform, false);
+        
+        layerEditors.Add(editor);
     }
 
-    public void LoadWaves()
+    public void LoadLayers()
     {
         switch (noiseMapID)
         {
             case NoiseMap.Continentality:
-                waves = WaveManager.Instance.CWaves;
+                layers = WaveManager.Instance.CLayers;
                 break;
             case NoiseMap.Height:
-                waves = WaveManager.Instance.HWaves;
+                layers = WaveManager.Instance.HLayers;
                 break;
             case NoiseMap.Temperature:
-                waves = WaveManager.Instance.TWaves;
+                layers = WaveManager.Instance.TLayers;
                 break;
             case NoiseMap.Humidity:
-                waves = WaveManager.Instance.HMWaves;
+                layers = WaveManager.Instance.HMLayers;
                 break;
         }
 
-        waveList = new List<GameObject>(waves.Length);
+        layerEditors = new List<GameObject>(layers.Count);
         int index = 0;
 
-        foreach (var wave in waves)
+        foreach (var layer in layers)
         {
-            GameObject newChild = Instantiate(WaveEditorPrefab);
-            newChild.transform.Find("FreqSlider").GetComponent<Slider>().value = wave.frequency;
-            newChild.transform.Find("AmpSlider").GetComponent<Slider>().value = wave.amplitude;
-            newChild.transform.Find("WaveNumber").GetComponent<TextMeshProUGUI>().text = "#" + (index + 1);
+            GameObject editor = Instantiate(LayerEditorPrefab);
+            editor.transform.Find("FreqSlider").GetComponent<Slider>().value = layer.frequency;
+            editor.transform.Find("AmpSlider").GetComponent<Slider>().value = layer.amplitude;
+            editor.transform.Find("LayerNumber").GetComponent<TextMeshProUGUI>().text = "#" + (index + 1);
             
-            var waveEditor = newChild.transform.GetComponent<WaveEditor>();
-            waveEditor.waveID = index;
+            var waveEditor = editor.transform.GetComponent<WaveEditor>();
+            waveEditor.layerID = index;
             waveEditor.noiseType = noiseMapID;
+            waveEditor.layerReference = layer;
 
-            newChild.transform.Find("Button").GetComponent<Button>().onClick.AddListener(() => RemoveWave(newChild));
-            newChild.transform.SetParent(transform, false);
+            editor.transform.Find("Button").GetComponent<Button>().onClick.AddListener(() => RemoveLayer(editor));
+            editor.transform.SetParent(transform, false);
 
-            waveList.Add(newChild);
+            layerEditors.Add(editor);
             index++;
         }
     }
 
-    public void RemoveWave(GameObject gm)
+    public void RemoveLayer(GameObject gm)
     {
-        int i = waveList.FindIndex(obj => obj == gm);
+        int i = layerEditors.FindIndex(obj => obj == gm);
         int index = 1;
 
-        foreach (GameObject wave in waveList.GetRange(i + 1, waveList.Count - i - 1))
+        foreach (GameObject layer in layerEditors.GetRange(i + 1, layerEditors.Count - i - 1))
         {
-            wave.transform.Find("WaveNumber").GetComponent<TextMeshProUGUI>().text = "#" + (i + index);
-            wave.transform.GetComponent<WaveEditor>().waveID = i + index - 1;
+            layer.transform.Find("LayerNumber").GetComponent<TextMeshProUGUI>().text = "#" + (i + index);
+            layer.transform.GetComponent<WaveEditor>().layerID = i + index - 1;
             index++;
         }
-        waveList.RemoveAt(i);
+        layers.RemoveAt(i);
+        layerEditors.RemoveAt(i);
         Destroy(gm);
     }
 
-    public void DeleteWaves()
+    public void UnloadLayers()
     {
-        foreach (GameObject wave in waveList)
+        foreach (GameObject editor in layerEditors)
         {
-            Destroy(wave);
+            Destroy(editor);
         }
-        waveList.Clear();
-    }
-
-    public void UnloadWaves()
-    {
-
+        layerEditors.Clear();
     }
 }

@@ -284,6 +284,7 @@ GameObject:
   - component: {fileID: 6116375301997511011}
   - component: {fileID: 2043861014337588217}
   - component: {fileID: 7759286776811628494}
+  - component: {fileID: 3647661617984537087}
   m_Layer: 0
   m_Name: NoiseMapEditorPrefab
   m_TagString: Untagged
@@ -424,6 +425,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   noiseMapID: 0
   WaveEditorPrefab: {fileID: 2051518870505650769, guid: 21aecbc2613671d4d88280a0a9a0084e, type: 3}
+--- !u!114 &3647661617984537087
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4313944947588232406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0.122641504, g: 0.122641504, b: 0.122641504, a: 1}
+  m_EffectDistance: {x: 2, y: 2}
+  m_UseGraphicAlpha: 0
 --- !u!1 &8316139011240654584
 GameObject:
   m_ObjectHideFlags: 0
