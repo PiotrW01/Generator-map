@@ -137,10 +137,10 @@ public class ChunkLoader : MonoBehaviour
             return false;
         }
 
-        float[,] continentalityMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.CLayers, new Vector2(gridPos.x, gridPos.y), seed);
-        float[,] heightMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.HLayers, new Vector2(gridPos.x, gridPos.y), seed);
-        float[,] temperatureMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.TLayers, new Vector2(gridPos.x, gridPos.y), seed);
-        float[,] humidityMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, WaveManager.Instance.HMLayers, new Vector2(gridPos.x, gridPos.y), seed);
+        float[,] continentalityMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, LayerManager.Instance.CLayers, new Vector2(gridPos.x, gridPos.y), seed);
+        float[,] heightMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, LayerManager.Instance.HLayers, new Vector2(gridPos.x, gridPos.y), seed);
+        float[,] temperatureMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, LayerManager.Instance.TLayers, new Vector2(gridPos.x, gridPos.y), seed);
+        float[,] humidityMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, LayerManager.Instance.HMLayers, new Vector2(gridPos.x, gridPos.y), seed);
 
 
         GenerateChunkTiles(gridPos, continentalityMap, heightMap, temperatureMap, humidityMap);

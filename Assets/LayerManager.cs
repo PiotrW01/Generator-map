@@ -1,10 +1,5 @@
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public enum NoiseMap
 {
@@ -14,9 +9,9 @@ public enum NoiseMap
     Humidity,
 }
 
-public class WaveManager : MonoBehaviour
+public class LayerManager : MonoBehaviour
 {
-    public static WaveManager Instance;
+    public static LayerManager Instance;
 
     private Layer[] defaultHLayers;
     private Layer[] defaultCLayers;

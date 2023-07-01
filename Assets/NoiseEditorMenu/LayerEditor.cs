@@ -2,7 +2,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WaveEditor : MonoBehaviour
+public class LayerEditor : MonoBehaviour
 {
     public int layerID = 0;
     public NoiseMap noiseType;

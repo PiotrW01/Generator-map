@@ -17,7 +17,7 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
         TMP_Dropdown.OptionData option = new("Default");
         presetDropDown.options.Add(option);
 
-        var names = WaveManager.Instance.presetNames;
+        var names = LayerManager.Instance.presetNames;
         foreach ( var name in names ) 
         {
             option = new(name);
@@ -48,7 +48,7 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
             SetToConfirm();
         } else
         {
-            WaveManager.Instance.ResetToDefault();
+            LayerManager.Instance.ResetToDefault();
             for (int i = 0; i < EditWindowContent.transform.childCount; i++)
             {
                 EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().UnloadLayers();
@@ -69,7 +69,7 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
         }
         else
         {
-            WaveManager.Instance.SavePreset(presetDropDown.options[presetDropDown.value].text);
+            LayerManager.Instance.SavePreset(presetDropDown.options[presetDropDown.value].text);
             Debug.Log(presetDropDown.options[presetDropDown.value].text);
             confirmed = false;
             buttonText.text = tempText;
@@ -86,7 +86,7 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
         {
             if (presetDropDown.value == 0)
             {
-                WaveManager.Instance.ResetToDefault();
+                LayerManager.Instance.ResetToDefault();
                 for (int i = 0; i < EditWindowContent.transform.childCount; i++)
                 {
                     EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().UnloadLayers();
@@ -95,7 +95,7 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
             } 
             else
             {
-                WaveManager.Instance.LoadPreset(presetDropDown.options[presetDropDown.value].text);
+                LayerManager.Instance.LoadPreset(presetDropDown.options[presetDropDown.value].text);
                 for (int i = 0; i < EditWindowContent.transform.childCount; i++)
                 {
                     EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().UnloadLayers();
@@ -117,7 +117,7 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
         } 
         else
         {
-            WaveManager.Instance.RemovePreset(presetDropDown.options[presetDropDown.value].text);
+            LayerManager.Instance.RemovePreset(presetDropDown.options[presetDropDown.value].text);
             presetDropDown.options.RemoveAt(presetDropDown.value);
             presetDropDown.value = 0;
             
@@ -136,7 +136,7 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
             presetDropDown.options[presetDropDown.value].text = CreatePresetName();
 
 
-            WaveManager.Instance.presetNames.Add(presetDropDown.options[presetDropDown.value].text);
+            LayerManager.Instance.presetNames.Add(presetDropDown.options[presetDropDown.value].text);
 
             TMP_Dropdown.OptionData option = new("Create new preset...");
             presetDropDown.options.Add(option);
@@ -156,7 +156,7 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
 
     private bool IsPresetNameAvailable(string name)
     {
-        var names = WaveManager.Instance.presetNames;
+        var names = LayerManager.Instance.presetNames;
         return !names.Contains(name);
     }
 

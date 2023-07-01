@@ -424,7 +424,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   noiseMapID: 0
-  WaveEditorPrefab: {fileID: 2051518870505650769, guid: 21aecbc2613671d4d88280a0a9a0084e, type: 3}
+  LayerEditorPrefab: {fileID: 2051518870505650769, guid: 21aecbc2613671d4d88280a0a9a0084e, type: 3}
 --- !u!114 &3647661617984537087
 MonoBehaviour:
   m_ObjectHideFlags: 0

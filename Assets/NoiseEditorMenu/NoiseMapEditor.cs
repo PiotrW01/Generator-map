@@ -19,10 +19,10 @@ public class NoiseMapEditor : MonoBehaviour
         editor.transform.Find("AmpSlider").GetComponent<Slider>().value = 0;
         editor.transform.Find("LayerNumber").GetComponent<TextMeshProUGUI>().text = "#" + (layerEditors.Count + 1);
         
-        var waveEditor = editor.transform.GetComponent<WaveEditor>();
-        waveEditor.layerID = layerEditors.Count;
-        waveEditor.noiseType = noiseMapID;
-        waveEditor.layerReference = layers[layers.Count - 1];
+        var layerEditor = editor.transform.GetComponent<LayerEditor>();
+        layerEditor.layerID = layerEditors.Count;
+        layerEditor.noiseType = noiseMapID;
+        layerEditor.layerReference = layers[layers.Count - 1];
 
         editor.transform.Find("Button").GetComponent<Button>().onClick.AddListener(() => RemoveLayer(editor));
         editor.transform.SetParent(transform, false);
@@ -35,16 +35,16 @@ public class NoiseMapEditor : MonoBehaviour
         switch (noiseMapID)
         {
             case NoiseMap.Continentality:
-                layers = WaveManager.Instance.CLayers;
+                layers = LayerManager.Instance.CLayers;
                 break;
             case NoiseMap.Height:
-                layers = WaveManager.Instance.HLayers;
+                layers = LayerManager.Instance.HLayers;
                 break;
             case NoiseMap.Temperature:
-                layers = WaveManager.Instance.TLayers;
+                layers = LayerManager.Instance.TLayers;
                 break;
             case NoiseMap.Humidity:
-                layers = WaveManager.Instance.HMLayers;
+                layers = LayerManager.Instance.HMLayers;
                 break;
         }
 
@@ -58,10 +58,10 @@ public class NoiseMapEditor : MonoBehaviour
             editor.transform.Find("AmpSlider").GetComponent<Slider>().value = layer.amplitude;
             editor.transform.Find("LayerNumber").GetComponent<TextMeshProUGUI>().text = "#" + (index + 1);
             
-            var waveEditor = editor.transform.GetComponent<WaveEditor>();
-            waveEditor.layerID = index;
-            waveEditor.noiseType = noiseMapID;
-            waveEditor.layerReference = layer;
+            var layerEditor = editor.transform.GetComponent<LayerEditor>();
+            layerEditor.layerID = index;
+            layerEditor.noiseType = noiseMapID;
+            layerEditor.layerReference = layer;
 
             editor.transform.Find("Button").GetComponent<Button>().onClick.AddListener(() => RemoveLayer(editor));
             editor.transform.SetParent(transform, false);
@@ -79,7 +79,7 @@ public class NoiseMapEditor : MonoBehaviour
         foreach (GameObject layer in layerEditors.GetRange(i + 1, layerEditors.Count - i - 1))
         {
             layer.transform.Find("LayerNumber").GetComponent<TextMeshProUGUI>().text = "#" + (i + index);
-            layer.transform.GetComponent<WaveEditor>().layerID = i + index - 1;
+            layer.transform.GetComponent<LayerEditor>().layerID = i + index - 1;
             index++;
         }
         layers.RemoveAt(i);

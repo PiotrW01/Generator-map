@@ -1154,7 +1154,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 767190072463271632, guid: 4606d4026124561439a88d2cc0473cfc, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 118.99826
       objectReference: {fileID: 0}
     - target: {fileID: 767190072463271632, guid: 4606d4026124561439a88d2cc0473cfc, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -1278,7 +1278,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2047543822695337299, guid: 4606d4026124561439a88d2cc0473cfc, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 118.99826
       objectReference: {fileID: 0}
     - target: {fileID: 2047543822695337299, guid: 4606d4026124561439a88d2cc0473cfc, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -1338,7 +1338,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5544382565509108599, guid: 4606d4026124561439a88d2cc0473cfc, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 118.99826
       objectReference: {fileID: 0}
     - target: {fileID: 5544382565509108599, guid: 4606d4026124561439a88d2cc0473cfc, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -1374,7 +1374,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6560439334124270718, guid: 4606d4026124561439a88d2cc0473cfc, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 118.99826
       objectReference: {fileID: 0}
     - target: {fileID: 6560439334124270718, guid: 4606d4026124561439a88d2cc0473cfc, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -1830,7 +1830,7 @@ GameObject:
   - component: {fileID: 554345991}
   - component: {fileID: 554345992}
   m_Layer: 0
-  m_Name: WaveManager
+  m_Name: LayerManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2036,7 +2036,7 @@ GameObject:
   - component: {fileID: 570305798}
   - component: {fileID: 570305797}
   m_Layer: 5
-  m_Name: ButtonGeneruj
+  m_Name: ButtonGenerate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2999,7 +2999,7 @@ GameObject:
   - component: {fileID: 878049699}
   - component: {fileID: 878049698}
   m_Layer: 5
-  m_Name: Button
+  m_Name: ExitButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4693,7 +4693,7 @@ GameObject:
   - component: {fileID: 1139048559}
   - component: {fileID: 1139048560}
   m_Layer: 5
-  m_Name: Stuff
+  m_Name: Menu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
