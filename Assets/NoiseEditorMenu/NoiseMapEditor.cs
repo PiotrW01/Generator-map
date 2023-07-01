@@ -14,16 +14,13 @@ public class NoiseMapEditor : MonoBehaviour
     {
         layers.Add(new Layer());
 
+        // Adds LayerEditor to the NoiseMapEditor
         GameObject editor = Instantiate(LayerEditorPrefab);
         editor.transform.Find("FreqSlider").GetComponent<Slider>().value = 0;
         editor.transform.Find("AmpSlider").GetComponent<Slider>().value = 0;
         editor.transform.Find("LayerNumber").GetComponent<TextMeshProUGUI>().text = "#" + (layerEditors.Count + 1);
         
-        var layerEditor = editor.transform.GetComponent<LayerEditor>();
-        layerEditor.layerID = layerEditors.Count;
-        layerEditor.noiseType = noiseMapID;
-        layerEditor.layerReference = layers[layers.Count - 1];
-
+        editor.transform.GetComponent<LayerEditor>().layerReference = layers[layers.Count - 1];
         editor.transform.Find("Button").GetComponent<Button>().onClick.AddListener(() => RemoveLayer(editor));
         editor.transform.SetParent(transform, false);
         
@@ -53,16 +50,13 @@ public class NoiseMapEditor : MonoBehaviour
 
         foreach (var layer in layers)
         {
+            // Loads LayerEditors to the NoiseMapEditor
             GameObject editor = Instantiate(LayerEditorPrefab);
             editor.transform.Find("FreqSlider").GetComponent<Slider>().value = layer.frequency;
             editor.transform.Find("AmpSlider").GetComponent<Slider>().value = layer.amplitude;
             editor.transform.Find("LayerNumber").GetComponent<TextMeshProUGUI>().text = "#" + (index + 1);
             
-            var layerEditor = editor.transform.GetComponent<LayerEditor>();
-            layerEditor.layerID = index;
-            layerEditor.noiseType = noiseMapID;
-            layerEditor.layerReference = layer;
-
+            editor.transform.GetComponent<LayerEditor>().layerReference = layer;
             editor.transform.Find("Button").GetComponent<Button>().onClick.AddListener(() => RemoveLayer(editor));
             editor.transform.SetParent(transform, false);
 
@@ -76,12 +70,13 @@ public class NoiseMapEditor : MonoBehaviour
         int i = layerEditors.FindIndex(obj => obj == gm);
         int index = 1;
 
+        // Decrements layer numbers of each layer after the deleted layer
         foreach (GameObject layer in layerEditors.GetRange(i + 1, layerEditors.Count - i - 1))
         {
             layer.transform.Find("LayerNumber").GetComponent<TextMeshProUGUI>().text = "#" + (i + index);
-            layer.transform.GetComponent<LayerEditor>().layerID = i + index - 1;
             index++;
         }
+        // Removes layer
         layers.RemoveAt(i);
         layerEditors.RemoveAt(i);
         Destroy(gm);
@@ -89,6 +84,7 @@ public class NoiseMapEditor : MonoBehaviour
 
     public void UnloadLayers()
     {
+        // Removes all LayerEditors from NoiseMapEditor
         foreach (GameObject editor in layerEditors)
         {
             Destroy(editor);

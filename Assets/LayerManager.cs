@@ -27,6 +27,7 @@ public class LayerManager : MonoBehaviour
 
     private void Awake()
     {
+        // Make singleton instance
         if (Instance != null && Instance != this)
         {
             Destroy(this);
@@ -35,11 +36,23 @@ public class LayerManager : MonoBehaviour
         {
             Instance = this;
         }
+
+        // Load presetNames if they exist
+        try
+        {
+            var jsonArray = PlayerPrefs.GetString("presetNames");
+            PresetWrapper presetWrapper = JsonUtility.FromJson<PresetWrapper>(jsonArray);
+            presetNames = presetWrapper.presetNames;
+        }
+        catch
+        {
+            Debug.Log("No saved presets.");
+        }
     }
 
     private void Start()
     {
-        // Set default 
+        // Set default values
         defaultCLayers = new Layer[]
         {
             new Layer(0.01f, 1f),
@@ -64,16 +77,8 @@ public class LayerManager : MonoBehaviour
             new Layer( 0.013f, 0.17f),
         };
 
+        // Assign default values to layers
         ResetToDefault();
-        try
-        {
-            var jsonArray = PlayerPrefs.GetString("presetNames");
-            PresetWrapper presetWrapper = JsonUtility.FromJson<PresetWrapper>(jsonArray);
-            presetNames = presetWrapper.presetNames;
-        } catch
-        {
-            Debug.Log("No saved presets.");
-        }
     }
 
     public void ResetToDefault()
@@ -84,9 +89,10 @@ public class LayerManager : MonoBehaviour
         HMLayers = Copy(defaultHMLayers);
     }
 
+    // Return a layer list with copied values from a layer array
     public List<Layer> Copy(Layer[] layers)
     {
-        List<Layer> copy = new List<Layer>();
+        List<Layer> copy = new();
         foreach (var layer in layers)
         {
             copy.Add(new Layer(layer.frequency, layer.amplitude));
@@ -103,12 +109,15 @@ public class LayerManager : MonoBehaviour
             jsonArray = PlayerPrefs.GetString(presetName + "_C");
             layerWrapper = JsonUtility.FromJson<LayerWrapper>(jsonArray);
             CLayers = layerWrapper.layers;
+
             jsonArray = PlayerPrefs.GetString(presetName + "_H");
             layerWrapper = JsonUtility.FromJson<LayerWrapper>(jsonArray);
             HLayers = layerWrapper.layers;
+
             jsonArray = PlayerPrefs.GetString(presetName + "_T");
             layerWrapper = JsonUtility.FromJson<LayerWrapper>(jsonArray);
             TLayers = layerWrapper.layers;
+
             jsonArray = PlayerPrefs.GetString(presetName + "_HM");
             layerWrapper = JsonUtility.FromJson<LayerWrapper>(jsonArray);
             HMLayers = layerWrapper.layers;
@@ -121,10 +130,8 @@ public class LayerManager : MonoBehaviour
     public void SavePreset(string presetName)
     {
         string jsonArray;
-        LayerWrapper layerWrapper = new()
-        {
-            layers = CLayers
-        };
+        
+        LayerWrapper layerWrapper = new() { layers = CLayers };
         jsonArray = JsonUtility.ToJson(layerWrapper, true);
         PlayerPrefs.SetString(presetName + "_C", jsonArray);
 
@@ -140,14 +147,15 @@ public class LayerManager : MonoBehaviour
         jsonArray = JsonUtility.ToJson(layerWrapper, true);
         PlayerPrefs.SetString(presetName + "_HM", jsonArray);
 
+        // If preset name doesn't exist add it as a new one
         if (!presetName.Contains(presetName))
         {
             presetNames.Add(presetName);
         }
+
         PresetWrapper presetWrapper = new() { presetNames = presetNames};
         jsonArray = JsonUtility.ToJson(presetWrapper, true);
         PlayerPrefs.SetString("presetNames", jsonArray);
-        Debug.Log(jsonArray);
         PlayerPrefs.Save();
     }
 
@@ -157,12 +165,12 @@ public class LayerManager : MonoBehaviour
         PlayerPrefs.DeleteKey(presetName + "_H");
         PlayerPrefs.DeleteKey(presetName + "_T");
         PlayerPrefs.DeleteKey(presetName + "_HM");
-
         presetNames.Remove(presetName);
+
+        // Save presetNames without the removed preset
         PresetWrapper presetWrapper = new() { presetNames = presetNames };
         var jsonArray = JsonUtility.ToJson(presetWrapper, true);
         PlayerPrefs.SetString("presetNames", jsonArray);
-        Debug.Log(jsonArray);
         PlayerPrefs.Save();
     }
 }
@@ -182,10 +190,11 @@ public class Layer
 
     public override string ToString()
     {
-        return "freq: " + frequency + " amp:" + amplitude;
+        return "Freq: " + frequency + " Amp:" + amplitude;
     }
 }
 
+// Wrappers to help save presets in PlayerPrefs
 [System.Serializable]
 public class LayerWrapper
 {

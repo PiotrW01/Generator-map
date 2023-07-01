@@ -1346,7 +1346,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5558736811032289795, guid: 4606d4026124561439a88d2cc0473cfc, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.0000076293945
+      value: 0.000017166138
       objectReference: {fileID: 0}
     - target: {fileID: 5562150651728206396, guid: 4606d4026124561439a88d2cc0473cfc, type: 3}
       propertyPath: m_Name
@@ -1412,7 +1412,8 @@ PrefabInstance:
       propertyPath: m_Colors.m_HighlightedColor.r
       value: 0.2830189
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5952790866591330986, guid: 4606d4026124561439a88d2cc0473cfc, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: 4606d4026124561439a88d2cc0473cfc, type: 3}
 --- !u!1 &490626548
 GameObject:
@@ -2210,12 +2211,8 @@ MonoBehaviour:
   scale: 4
   seed: 222
   tilemap: {fileID: 1059430868}
-  showNoise: 0
   selectedNoiseMap: 0
-  tileHNoiseValue: 0
-  tileCNoiseValue: 0
-  tileTNoiseValue: 0
-  tileTerrainType: 0
+  showNoise: 0
   currentChunk: {x: 0, y: 0}
   currentGridPos: {x: 0, y: 0, z: 0}
   loadedChunks: []

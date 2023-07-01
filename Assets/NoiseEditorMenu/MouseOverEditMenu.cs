@@ -6,7 +6,6 @@ public class MouseOverEditMenu : MonoBehaviour
 {
     public static bool isOverMenu = false;
 
-
     private void OnMouseEnter()
     {
         isOverMenu = true;

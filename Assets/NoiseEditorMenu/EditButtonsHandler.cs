@@ -14,20 +14,21 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
 
     private void Start()
     {
-        TMP_Dropdown.OptionData option = new("Default");
-        presetDropDown.options.Add(option);
+        TMP_Dropdown.OptionData option;
 
+        // Add presets in dropdown
         var names = LayerManager.Instance.presetNames;
+        Debug.Log(names.Count);
         foreach ( var name in names ) 
         {
             option = new(name);
             presetDropDown.options.Add(option);
         }
 
+        // Add Create new preset option in dropdown
         option = new("Create new preset...");
         presetDropDown.options.Add(option);
     }
-
 
     public void OnPointerEnter(PointerEventData eventData)
     {
@@ -49,11 +50,8 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
         } else
         {
             LayerManager.Instance.ResetToDefault();
-            for (int i = 0; i < EditWindowContent.transform.childCount; i++)
-            {
-                EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().UnloadLayers();
-                EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().LoadLayers();
-            }
+            ReloadEditor();
+
             confirmed = false;
             buttonText.text = tempText;
         }
@@ -70,7 +68,7 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
         else
         {
             LayerManager.Instance.SavePreset(presetDropDown.options[presetDropDown.value].text);
-            Debug.Log(presetDropDown.options[presetDropDown.value].text);
+
             confirmed = false;
             buttonText.text = tempText;
         }
@@ -87,21 +85,14 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
             if (presetDropDown.value == 0)
             {
                 LayerManager.Instance.ResetToDefault();
-                for (int i = 0; i < EditWindowContent.transform.childCount; i++)
-                {
-                    EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().UnloadLayers();
-                    EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().LoadLayers();
-                }
+                ReloadEditor();
             } 
             else
             {
                 LayerManager.Instance.LoadPreset(presetDropDown.options[presetDropDown.value].text);
-                for (int i = 0; i < EditWindowContent.transform.childCount; i++)
-                {
-                    EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().UnloadLayers();
-                    EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().LoadLayers();
-                }
+                ReloadEditor();
             }
+
             confirmed = false;
             buttonText.text = tempText;
         }
@@ -109,6 +100,7 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
 
     public void DeletePreset()
     {
+        // Return if default is selected
         if (presetDropDown.value == 0) return;
 
         if(!confirmed)
@@ -117,10 +109,14 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
         } 
         else
         {
+            // Remove preset from saved presets and from dropdown
             LayerManager.Instance.RemovePreset(presetDropDown.options[presetDropDown.value].text);
             presetDropDown.options.RemoveAt(presetDropDown.value);
+            // Select default
             presetDropDown.value = 0;
-            
+            LayerManager.Instance.ResetToDefault();
+            ReloadEditor();
+
             confirmed = false;
             buttonText.text = tempText;
         }
@@ -129,18 +125,23 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
 
     public void OnDropDownSelect()
     {
-        if (presetDropDown.options.Count > 30) return;
+        // Max 30 presets (32 - default option - create new preset option)
+        if (presetDropDown.options.Count > 32) return;
 
+        // If create new preset is selected
         if(presetDropDown.options.Count - 1 == presetDropDown.value)
         {
+            // Replace Create new preset text with new preset name
             presetDropDown.options[presetDropDown.value].text = CreatePresetName();
 
-
+            // Add preset name to preset list
             LayerManager.Instance.presetNames.Add(presetDropDown.options[presetDropDown.value].text);
 
+            // Add new create new preset option 
             TMP_Dropdown.OptionData option = new("Create new preset...");
             presetDropDown.options.Add(option);
 
+            // Reselect the new preset
             presetDropDown.value = 0;
             presetDropDown.value = presetDropDown.options.Count - 2;
             return;
@@ -171,5 +172,15 @@ public class EditButtonsHandler : MonoBehaviour, IPointerExitHandler, IPointerEn
             canCreate = IsPresetNameAvailable(name);
         }
         return name;
+    }
+
+    // Reloads layers in each NoiseMapEditor
+    public void ReloadEditor()
+    {
+        for (int i = 0; i < EditWindowContent.transform.childCount; i++)
+        {
+            EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().UnloadLayers();
+            EditWindowContent.transform.GetChild(i).GetComponent<NoiseMapEditor>().LoadLayers();
+        }
     }
 }

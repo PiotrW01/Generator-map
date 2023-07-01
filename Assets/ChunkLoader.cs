@@ -10,12 +10,8 @@ public class ChunkLoader : MonoBehaviour
     public int seed = 222;
 
     public Tilemap tilemap;
-    public bool showNoise = false;
     public NoiseMap selectedNoiseMap = NoiseMap.Continentality;
-    public float tileHNoiseValue;
-    public float tileCNoiseValue;
-    public float tileTNoiseValue;
-    public Terrain tileTerrainType;
+    public bool showNoise = false;
 
     public static int chunkSize = 16;
     public static int renderDistance = 3;
@@ -25,6 +21,7 @@ public class ChunkLoader : MonoBehaviour
 
     private void Awake()
     {
+        // Make singleton instance
         if (Instance != null && Instance != this)
         {
             Destroy(this);
@@ -37,32 +34,21 @@ public class ChunkLoader : MonoBehaviour
     private void Start()
     {
         seed = 222;
-        //tile = ScriptableObject.CreateInstance<CustomTile>();
 
+        // Set loadedChunks list size according to selected renderDistance
         loadedChunks = new List<Vector2Int>(((renderDistance * 2) + 1 + 2) * 2);
         // Current position on grid
         var gridPos = tilemap.WorldToCell(Camera.main.transform.position);
-        // Current chunk
+        // Set current chunk
         currentChunk = GridToChunkCoords(gridPos.x, gridPos.y);
         RenderChunks(currentChunk);
-
-        tileHNoiseValue = 1f;
-        tileCNoiseValue = 1f;
-        tileTNoiseValue = 1f;
     }
     private void Update()
     {
         currentGridPos = tilemap.WorldToCell(Camera.main.transform.position);
-
-        var currentTile = tilemap.GetTile<CustomTile>(currentGridPos);
-        try {
-        tileHNoiseValue = currentTile.heightValue;
-        tileCNoiseValue = currentTile.continentalityValue;
-        tileTNoiseValue = currentTile.temperatureValue;
-        tileTerrainType = currentTile.terrainType;
-        } catch { }
-        
         var newChunk = GridToChunkCoords(currentGridPos.x, currentGridPos.y);
+
+        // Checks if the currentChunk has changed
         if (currentChunk != newChunk)
         {
             currentChunk = newChunk;
@@ -98,11 +84,11 @@ public class ChunkLoader : MonoBehaviour
     }
     public void UnloadChunks(Vector2Int centerChunkPos)
     {
+        // Goes through all loaded chunks.
+        // If the chunks is too far from the current chunk it gets unloaded
+        // and removed from the loadedChunks list
         for (int i = loadedChunks.Count - 1; i >= 0; i--)
         {
-            // Goes through all loaded chunks.
-            // If the chunks is too far from the current chunk it gets unloaded
-            // and removed from the loadedChunks list
             if (Mathf.Abs(centerChunkPos.x - loadedChunks[i].x) > renderDistance + 1 || Mathf.Abs(centerChunkPos.y - loadedChunks[i].y) > renderDistance + 1)
             {
                 UnloadChunk(loadedChunks[i]);
@@ -112,6 +98,8 @@ public class ChunkLoader : MonoBehaviour
     }
     public bool UnloadChunk(Vector2Int chunkPos)
     {
+        // Goes through all tiles in a chunk and unloads them
+        // Sets each of them to null
         var gridPos = ChunkToGridCoords(chunkPos.x, chunkPos.y);
         if (tilemap.GetTile(new Vector3Int(gridPos.x, gridPos.y, 0)) == null)
         {
@@ -130,34 +118,40 @@ public class ChunkLoader : MonoBehaviour
 
     }
     public bool RenderChunk(Vector2Int chunkPos)
-    {
+    {        
         var gridPos = ChunkToGridCoords(chunkPos.x, chunkPos.y);
         if (tilemap.GetTile(new Vector3Int(gridPos.x, gridPos.y, 0)) != null)
         {
             return false;
         }
 
+        // Generate noisemaps for this chunk
         float[,] continentalityMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, LayerManager.Instance.CLayers, new Vector2(gridPos.x, gridPos.y), seed);
         float[,] heightMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, LayerManager.Instance.HLayers, new Vector2(gridPos.x, gridPos.y), seed);
         float[,] temperatureMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, LayerManager.Instance.TLayers, new Vector2(gridPos.x, gridPos.y), seed);
         float[,] humidityMap = NoiseGenerator.GenerateNoiseMap(chunkSize, scale, LayerManager.Instance.HMLayers, new Vector2(gridPos.x, gridPos.y), seed);
 
-
+        // Generate tiles in a chunk based on the noisemaps
         GenerateChunkTiles(gridPos, continentalityMap, heightMap, temperatureMap, humidityMap);
+        // Add chunk to loadedChunks
         loadedChunks.Add(chunkPos);
         return true;
     }
     private void GenerateChunkTiles(Vector2Int gridPos, float[,] continentalityMap, float[,] heightMap, float[,] temperatureMap, float[,] humidityMap)
     {
+        // Goes through each tile 
         for (int y = 0; y < chunkSize; y++)
         {
             for (int x = 0; x < chunkSize; x++)
             {
+                // Creates a CustomTile Object
                 CustomTile ct = ScriptableObject.CreateInstance<CustomTile>();
+                // Assigns corresponding noisemap values to the tile
                 ct.continentalityValue = continentalityMap[x, y];
                 ct.heightValue = heightMap[x, y];
                 ct.temperatureValue = temperatureMap[x, y];
                 ct.humidityValue = humidityMap[x, y];
+                // Chooses the terrain type for this tile
                 if (continentalityMap[x, y] < 0.35f)
                 {
                     if (continentalityMap[x, y] < 0.17f && heightMap[x, y] > 0.5f) ct.SetTerrain(Terrain.Land);
@@ -210,18 +204,16 @@ public class ChunkLoader : MonoBehaviour
         loadedChunks.Clear();
         StartCoroutine(RenderChunks2(currentChunk));
     }
-    /// <summary>
-    /// Returns the chunk coordinates of the chunk in which the (x,y) point is present.
-    /// </summary>
+
+    // Returns the chunk coordinates of the chunk in which the (x,y) point is present.
     public Vector2Int GridToChunkCoords(int x, int y)
     {
         return new Vector2Int(x / chunkSize, y / chunkSize);
     }
 
-    /// <summary>
-    /// <para>Returns the starting coordinates of a chunk.</para>
-    /// To get the end coordinates of a chunk add (chunkSize - 1) to x and y.
-    /// </summary>
+
+    // Returns the starting coordinates of a chunk
+    // To get the end coordinates of a chunk add (chunkSize - 1) to x and y
     public Vector2Int ChunkToGridCoords(int chunkX, int chunkY)
     {
         return new Vector2Int(chunkX * chunkSize, chunkY * chunkSize);

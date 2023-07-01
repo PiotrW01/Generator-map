@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -20,12 +18,15 @@ public class CustomTile : Tile
     public float temperatureValue;
     public float continentalityValue;
     public float humidityValue;
+
+
     public void SetTerrain(Terrain terrainType)
     {
         this.terrainType = terrainType;
         sprite = TerrainSprites.GetSprite(terrainType);
     }
     
+    // Replaces tile sprite with its noise value as a color
     public void ShowNoise(NoiseMap map)
     {
         sprite = TerrainSprites.GetSprite(Terrain.Noise);

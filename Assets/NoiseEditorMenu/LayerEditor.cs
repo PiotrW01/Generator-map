@@ -4,8 +4,7 @@ using UnityEngine.UI;
 
 public class LayerEditor : MonoBehaviour
 {
-    public int layerID = 0;
-    public NoiseMap noiseType;
+    // Reference to the actual layer
     public Layer layerReference;
 
     public Slider freqSlider;
@@ -17,7 +16,6 @@ public class LayerEditor : MonoBehaviour
 
     void Start()
     {
-
         freqSlider.onValueChanged.AddListener(freq => {
             freqText.text = freq.ToString("0.0000");
             layerReference.frequency = freq;
@@ -30,17 +28,5 @@ public class LayerEditor : MonoBehaviour
 
         freqText.text = freqSlider.value.ToString("0.0000");
         ampText.text = ampSlider.value.ToString("0.0000");
-    }
-
-    public void SetFrequency()
-    {
-        freqText.text = freqSlider.value.ToString("0.0000");
-        layerReference.frequency = freqSlider.value;
-    }
-
-    public void SetAmplitude()
-    {
-        ampText.text = ampSlider.value.ToString("0.0000");
-        layerReference.amplitude = ampSlider.value;
     }
 }

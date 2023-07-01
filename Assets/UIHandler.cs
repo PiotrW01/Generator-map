@@ -21,28 +21,12 @@ public class UIHandler : MonoBehaviour
     public GameObject EditWindow;
     public GameObject EditWindowContent;
 
-/*    public Slider freqSlider;
-    public Slider ampSlider;
-    public TextMeshProUGUI freqText;
-    public TextMeshProUGUI ampText;*/
-    //public TextMeshProUGUI currentWaveText;
-    //private int currentWave = 0;
-
     private void Start()
     {
         EditWindow.SetActive(false);
-        //currentWaveText.text = "Aktualnie wybrana fala: 0";
         seed.text = ChunkLoader.Instance.seed.ToString();
         renderDistanceText.text = ChunkLoader.renderDistance.ToString();
         renderDistanceSlider.value = ChunkLoader.renderDistance;
-
-/*        freqSlider.onValueChanged.AddListener((v) => {
-              
-            freqText.text = v.ToString("0.000");
-        });
-        ampSlider.onValueChanged.AddListener((v) => {
-            ampText.text = v.ToString("0.000");
-        });*/
 
         renderDistanceSlider.onValueChanged.AddListener((v) =>
         {
@@ -67,6 +51,7 @@ public class UIHandler : MonoBehaviour
 
     private void FixedUpdate()
     {
+        // Gets the tile at current coordinates and displays its information
         var tilemap = ChunkLoader.Instance.tilemap;
         var pos = tilemap.WorldToCell(Camera.main.transform.position);
         try
@@ -116,6 +101,7 @@ public class UIHandler : MonoBehaviour
         ChunkLoader.Instance.SwitchNoise();
     }
 
+    // Activates editor window
     public void EditPreset()
     {
         EditWindow.SetActive(!EditWindow.activeSelf);

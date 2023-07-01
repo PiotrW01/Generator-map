@@ -3,7 +3,7 @@ using UnityEngine.Tilemaps;
 
 public class ChunkBorderRenderer : MonoBehaviour
 {
-    public bool chunkBorders = true;
+    public bool chunkBorders = false;
     public Tilemap tilemap;
 
     void Update()
@@ -11,6 +11,8 @@ public class ChunkBorderRenderer : MonoBehaviour
         if (chunkBorders) DrawChunkBorders();
     }
 
+    // Draws a border around each chunks, enable gizmos to view in game view
+    // Doesn't work in build
     public void DrawChunkBorders()
     {
         var gap = (ChunkLoader.chunkSize - 1);

@@ -8,10 +8,10 @@ public static class NoiseGenerator
         float[,] noiseMap = new float[chunkSize, chunkSize];
         if (layers.Count == 0) return noiseMap;
 
-        UnityEngine.Random.InitState(seed);
+        Random.InitState(seed);
 
-        int offsetX = UnityEngine.Random.Range(0, 99999);
-        int offsetY = UnityEngine.Random.Range(0, 99999);
+        int offsetX = Random.Range(0, 99999);
+        int offsetY = Random.Range(0, 99999);
 
         for (int x = 0; x < chunkSize; x++)
         {
@@ -23,8 +23,8 @@ public static class NoiseGenerator
                 float normalization = 0.0f;
                 foreach (Layer layer in layers)
                 {
-                    UnityEngine.Random.InitState(seed);
-                    int layerSeed = UnityEngine.Random.Range(0, 9999);
+                    Random.InitState(seed);
+                    int layerSeed = Random.Range(0, 9999);
                     noiseMap[x, y] += layer.amplitude * Mathf.PerlinNoise(samplePosX * layer.frequency
                                     + layerSeed, samplePosY * layer.frequency + layerSeed);
                     normalization += layer.amplitude;

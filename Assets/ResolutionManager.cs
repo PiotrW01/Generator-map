@@ -11,6 +11,7 @@ public class ResolutionManager : MonoBehaviour
 
     private void Awake()
     {
+        // Make singleton instance
         if (Instance != null && Instance != this)
         {
             Destroy(this);
