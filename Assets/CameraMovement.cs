@@ -39,21 +39,31 @@ public class CameraMovement : MonoBehaviour
         }
 
         // Changes zoom
-        if(Input.mouseScrollDelta.y > 0 && Camera.main.orthographicSize > minZoom && !MouseOverEditMenu.isOverMenu)
+        if((Input.mouseScrollDelta.y > 0 && !MouseOverEditMenu.isOverMenu && Camera.main.orthographicSize > minZoom) 
+            || (Camera.main.orthographicSize > minZoom && Input.GetKeyDown(KeyCode.E)))
         {
-            if((Camera.main.orthographicSize /= 1.1f) < minZoom)
-            {
-                Camera.main.orthographicSize = minZoom;
-            }
-        } else if(Input.mouseScrollDelta.y < 0 && Camera.main.orthographicSize < maxZoom && !MouseOverEditMenu.isOverMenu)
+            ZoomIn();
+        } else if((Input.mouseScrollDelta.y < 0 && !MouseOverEditMenu.isOverMenu && Camera.main.orthographicSize < maxZoom)
+            || (Camera.main.orthographicSize < maxZoom && Input.GetKeyDown(KeyCode.Q)))
         {
-            if ((Camera.main.orthographicSize *= 1.1f) > maxZoom)
-            {
-                Camera.main.orthographicSize = maxZoom;
-            }
+            ZoomOut();
         }
-
-
-
     }
+
+    private void ZoomIn()
+    {
+        if ((Camera.main.orthographicSize /= 1.1f) < minZoom)
+        {
+            Camera.main.orthographicSize = minZoom;
+        }
+    }
+
+    private void ZoomOut()
+    {
+        if ((Camera.main.orthographicSize *= 1.1f) > maxZoom)
+        {
+            Camera.main.orthographicSize = maxZoom;
+        }
+    }
+
 }
