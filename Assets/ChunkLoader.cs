@@ -152,43 +152,7 @@ public class ChunkLoader : MonoBehaviour
                 ct.temperatureValue = temperatureMap[x, y];
                 ct.humidityValue = humidityMap[x, y];
                 // Chooses the terrain type for this tile
-                if (continentalityMap[x, y] < 0.35f)
-                {
-                    if (continentalityMap[x, y] < 0.17f && heightMap[x, y] > 0.5f) ct.SetTerrain(Terrain.Land);
-                    else ct.SetTerrain(Terrain.Water);
-                }
-                else
-                {
-                    switch (heightMap[x, y])
-                    {
-                        case < 0.3f:
-                            ct.SetTerrain(Terrain.Mountain);
-                            break;
-                        case > 0.68f:
-                            ct.SetTerrain(Terrain.Water);
-                            break;
-                        default:
-                            switch(temperatureMap[x, y])
-                            {
-                                case < 0.25f:
-                                    ct.SetTerrain(Terrain.Desert);
-                                    break;
-                                case >= 0.25f and <= 0.35f:
-                                    if (humidityMap[x, y] < 0.35f) ct.SetTerrain(Terrain.Jungle);
-                                    else if (humidityMap[x, y] < 0.45f) ct.SetTerrain(Terrain.Forest);
-                                    else ct.SetTerrain(Terrain.Land);
-                                    break;
-                                case > 0.35f and < 0.8f:
-                                    if (humidityMap[x, y] < 0.35f) ct.SetTerrain(Terrain.Forest);
-                                    else ct.SetTerrain(Terrain.Land);
-                                    break;
-                                default:
-                                    ct.SetTerrain(Terrain.Land);
-                                    break;
-                            }
-                            break;
-                    }
-                }
+                ChooseTerrainType(ct, continentalityMap[x,y], heightMap[x,y], temperatureMap[x,y], humidityMap[x,y]);
                 if (showNoise)
                 {
                     ct.ShowNoise(selectedNoiseMap);
@@ -223,5 +187,46 @@ public class ChunkLoader : MonoBehaviour
     {
         showNoise = !showNoise;
         ReloadChunks();
+    }
+
+    private void ChooseTerrainType(CustomTile ct, float continentalityMapValue, float heightMapValue, float temperatureMapValue, float humidityMapValue)
+    {
+        if (continentalityMapValue < 0.35f)
+        {
+            if (continentalityMapValue < 0.17f && heightMapValue > 0.5f) ct.SetTerrain(Terrain.Land);
+            else ct.SetTerrain(Terrain.Water);
+        }
+        else
+        {
+            switch (heightMapValue)
+            {
+                case < 0.3f:
+                    ct.SetTerrain(Terrain.Mountain);
+                    break;
+                case > 0.68f:
+                    ct.SetTerrain(Terrain.Water);
+                    break;
+                default:
+                    switch (temperatureMapValue)
+                    {
+                        case < 0.25f:
+                            ct.SetTerrain(Terrain.Desert);
+                            break;
+                        case >= 0.25f and <= 0.35f:
+                            if (humidityMapValue < 0.35f) ct.SetTerrain(Terrain.Jungle);
+                            else if (humidityMapValue < 0.45f) ct.SetTerrain(Terrain.Forest);
+                            else ct.SetTerrain(Terrain.Land);
+                            break;
+                        case > 0.35f and < 0.8f:
+                            if (humidityMapValue < 0.35f) ct.SetTerrain(Terrain.Forest);
+                            else ct.SetTerrain(Terrain.Land);
+                            break;
+                        default:
+                            ct.SetTerrain(Terrain.Land);
+                            break;
+                    }
+                    break;
+            }
+        }
     }
 }
